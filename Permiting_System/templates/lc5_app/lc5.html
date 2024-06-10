@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permit Request Form</title>
+    <link rel="stylesheet" href="{% static 'lc5_app/lc5.css' %}">
+</head>
+<body>
+    <header>
+        <div class="logo"><img src="{% static 'index_app/ministry-of-agriculture-animal-industry-and-fisheries_0.png' %}" class="image"></div>
+        <nav>
+            <ul>
+                <li><a href="{% url 'lc5:lc5' %}">Home</a></li>
+                <li><a href="{% url 'lc5:lc5_profile' %}">Profile</a></li>
+                <li><a href="{% url 'auth:logout' %}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="form-container">
+            <form action="{% url 'lc5:permit_request' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="license_id">License ID of Trader/Farmer:</label>
+                <input type="text" id="license_id" name="license_id" placeholder="Enter licenceID">
+
+                <label for="quantity">Number of Livestock:</label>
+                <input type="number" id="quantity" name="quantity" placeholder="Enter quantity">
+
+                <label for="animal_type">Type of Livestock:</label>
+                <input type="text" id="type" name="animal_type" placeholder="Enter animal_type">
+
+                <label for="lc1_letter">Upload LC1 Letter</label>
+                <input type="file" id="lc1_letter" name="lc1_letter" accept="image/*">
+
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

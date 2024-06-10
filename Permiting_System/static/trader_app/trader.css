@@ -1,0 +1,157 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* Header Styles */
+header {
+    background-color: #ffffff;
+    color: #fff;
+    padding: 10px 0;
+}
+
+.container {
+    width: 90%;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    height: 50px;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+/* nav ul li {
+    margin-left: 20px;
+} */
+
+nav ul li a {
+    color: #000;
+    text-decoration: none;
+    margin: 0 1rem;
+    font-weight: bolder;
+}
+
+/* Profile Card Styles */
+.profile-container {
+    width: 90%;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-card {
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 600px;
+    border-radius: 10px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+}
+
+.profile-pic {
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+.profile-info h1 {
+    margin: 0;
+}
+
+.profile-info p {
+    color: #888;
+}
+
+/* Profile Details Styles */
+.profile-details {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.profile-column {
+    width: 45%;
+}
+
+.profile-column p {
+    margin: 10px 0;
+}
+
+/* History Table Styles */
+.history {
+    width: 100%;
+    max-width: 600px;
+    margin-top: 20px;
+}
+
+.history h2 {
+    margin-bottom: 10px;
+}
+
+.history table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.history table th, .history table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.history table th {
+    background-color: #169EE7;
+    color: #fff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-pic {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    nav ul {
+        flex-direction: column;
+    }
+
+    nav ul li {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+
+    .profile-details {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-column {
+        width: 100%;
+        text-align: center;
+    }
+}

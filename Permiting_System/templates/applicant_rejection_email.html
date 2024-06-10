@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ subject }}</title>
+</head>
+<style>
+    .body {
+        background-color: black;
+    }
+</style>
+<body>
+    <p>Dear Applicant,</p>
+    <p>We regret to inform you that your application has been rejected due to the following reason:</p>
+    <p>{{ reason }}</p>
+    <p>Please click on the following link to update your details:</p>
+    <a href="{{ url }}">{{ url }}</a>
+    <p>Thank you for your understanding.</p>
+</body>
+</html>

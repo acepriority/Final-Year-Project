@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permits Table</title>
+    <link rel="stylesheet" href="{% static 'staff_app/table.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><img src="{% static 'index_app/ministry-of-agriculture-animal-industry-and-fisheries_0.png' %}" alt="image" class="image"></div>
+        <ul class="nav-links">
+            <li><a href="{% url 'staff:staff' %}">Home</a></li>
+            <li><a href="{% url 'staff:staff_profile' %}">Profile</a></li>
+            <li><a href="{% url 'auth:logout' %}">Logout</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <div class="header">
+            <h2>Permits</h2>
+            <div class="search-filter">
+                <input type="text" id="searchInput" placeholder="Search...">
+                <button id="filterButton">Filter</button>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Permit No.</th>
+                    <th>Source</th>
+                    <th>Destination</th>
+                    <th>Animals</th>
+                    <th>Quantity</th>
+                    <th>DVO</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                {% for permit in permit %}
+                <tr>
+                    <td>{{ permit.id }}</td>
+                    <td>{{ permit.source }}</td>
+                    <td>{{ permit.destination }}</td>
+                    <td>{{ permit.purpose }}</td>
+                    <td>20</td>
+                    <td>{{ permit.user.first_name }} {{ permit.user.last_name }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script src="{% static 'staff_app/table.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.container .qr-code {
+    display: flex;
+    justify-content: space-between;
+    height: 100px;
+}
+
+.container .qr-code .permit-title {
+    display: flex;
+}
+
+.container .qr-code .permit-title .title h1 {
+    margin-top: 20px;
+    font-size: 1rem;
+    margin-bottom: 0.5em !important;
+}
+
+.container .qr-code .permit-title .title h2 {
+    margin: 0;
+    font-size: 0.8rem;
+}
+
+.divider1 {
+    width: 100%;
+    height: 1px;
+    background-color: #000000;
+    margin: 0;
+}
+
+.divider2 {
+    width: 100%;
+    height: 2px;
+    background-color: #fefa00;
+    margin: 0;
+}
+
+.divider3 {
+    width: 100%;
+    height: 2px;
+    background-color: #fe0000;
+    margin: 0;
+}
+
+.container .permit-content-divider {
+    background-color: #000000;
+    text-align: center;
+}
+
+.container .permit-content-divider h1 {
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+.person-info {
+    display: flex;
+    justify-content: space-between;
+    height: 154px;
+    overflow: hidden;
+}
+
+.profile-picture {
+    border: 2px solid black;
+    float: left;
+    width: 150px;
+    height: 150px;
+    overflow: hidden;
+    background-color: #ddd;
+}
+
+.person-details {
+    border: 2px solid black;
+    width: 440px;
+    display: flex;
+}
+
+.person-details h4 {
+    margin: 15px;
+}
+
+.person-details .person-details-inputs h4 {
+    font-weight: normal;
+}
+
+.person-info .profile-picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.permit-info {
+    border: 2px solid black;
+    margin-top: 40px;
+    display: flex;
+}
+
+.permit-info .permit-info-labels {
+    display: flex;
+    flex-direction: column;
+    margin-right: 40px;
+    padding-bottom: 5px;
+}
+
+.permit-info .permit-info-inputs {
+    display: flex;
+    flex-direction: column;
+}
+
+.permit-info .permit-info-labels h1 {
+    margin: 0;
+    font-size: 1rem;
+    padding: 10px;
+}
+
+.permit-info .permit-info-inputs h1 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: normal;
+    padding: 10px;
+}
+
+.inspector-date-info {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 20px;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-bottom: 20px;
+}
+
+.inspector-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0;
+    width: 160px;
+}
+
+.date-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0;
+    width: 160px;
+}
+
+.line {
+    width: 100%;
+    height: 1px;
+    background-color: black;
+}
+
+.footer {
+    margin-top: 20px;
+    margin-bottom: 50px;
+}
+
+.footer h2 {
+    color: #2e2e2e;
+    text-decoration: underline;
+}
+
+.footer p {
+    color: #2e2e2e;
+    font-style: italic;
+}
+
+@media screen and (max-width: 600px) {
+    .container {
+        max-width: 90%;
+    }
+    .profile-picture {
+        float: none;
+        margin: 0 auto 20px;
+    }
+}

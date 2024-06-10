@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'index_app/base.css' %}">
+    {% block extra_styles %}
+    <!-- Child templates can add their specific styles here -->
+    {% endblock %}
+    <title>{% block title %}Site{% endblock %}</title>
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <img src="{% static 'index_app/ministry-of-agriculture-animal-industry-and-fisheries_0.png' %}" alt="image" class="image">
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="{% url 'index' %}" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'apply' %}" class="nav-link">Apply</a>
+                </li>
+                <li class="nav-item">
+                    <div class="dropdown">
+                        <a href="#">About</a>
+                        <div class="dropdown-menu">
+                            <a href="#">Board of Directors</a>
+                            <a href="#">Animal Disease Act</a>
+                        </div>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">News</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">Contact</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'login' %}" class="nav-link">Login</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}
+        <!-- Child templates will render their content here -->
+        {% endblock %}
+    </main>
+
+    <footer>
+        <div class="divider"></div>
+        <p>Copyright © 2024 - 2030 Ministry of Agriculture, Animal Industry and Fisheries.</p>
+    </footer>
+
+    <script src="{% static 'index_app/indexpage.js' %}"></script>
+</body>
+</html>

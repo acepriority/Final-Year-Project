@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applicants Table</title>
+    <link rel="stylesheet" href="{% static 'staff_app/table.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><img src="{% static 'index_app/ministry-of-agriculture-animal-industry-and-fisheries_0.png' %}" alt="image" class="image"></div>
+        <ul class="nav-links">
+            <li><a href="{% url 'staff:staff' %}">Home</a></li>
+            <li><a href="{% url 'staff:staff_profile' %}">Profile</a></li>
+            <li><a href="{% url 'auth:logout' %}">Logout</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <div class="header">
+            <h2>Applicants</h2>
+            <div class="search-filter">
+                <input type="text" id="searchInput" placeholder="Search...">
+                <button id="filterButton">Filter</button>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ApplicantID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>NIN</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                {% for applicant in applicant %}
+                <tr onclick="redirectToApplicantDetails({{ applicant.id }})">
+                    <td>{{ applicant.id }}</td>
+                    <td>{{ applicant.first_name }}</td>
+                    <td>{{ applicant.last_name }}</td>
+                    <td>{{ applicant.nin }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script src="{% static 'staff_app/table.js' %}"></script>
+    <script>
+        function redirectToApplicantDetails(applicantId) {
+            var url = "{% url 'staff:applicant_details' 0 %}".replace('0', applicantId);
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>

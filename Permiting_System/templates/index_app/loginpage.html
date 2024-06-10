@@ -1,0 +1,49 @@
+{% extends 'index_app/base.html' %}
+
+{% load static %}
+
+{% block title %}login{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'index_app/loginpage.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="info-section"></div>
+        <div class="login-section">
+            <h1>Login</h1>
+            <form action="{% url 'auth:login_user' %}" method="post">
+                {% csrf_token %}
+                <div class="error-message">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username"  placeholder="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password" placeholder="password" required>
+                        <button type="button" class="toggle-password" aria-label="Toggle password visibility">👁️</button>
+                    </div>
+                </div>
+                <div class="form-options">
+                    <a href="{% url 'auth:verify_email' %}">Forgot Password?</a>
+                </div>
+                <button type="submit" class="login-button">Log In</button>
+            </form>
+        </div>
+        
+    </div>
+    <script src="{% static 'index_app/loginpage.js' %}"></script>
+{% endblock %}
+

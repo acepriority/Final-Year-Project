@@ -1,0 +1,64 @@
+    article {
+        flex: 1;
+        margin: 0 10px;
+    }
+    
+    section {
+        margin-bottom: 20px;
+    }
+    
+    /* Mission, Vision, Values Styles */
+    .Misson-Vision-Values h1 {
+        color: #007bff;
+        margin-bottom: 10px;
+    }
+    
+    .Misson-Vision-Values p {
+        line-height: 1.6;
+    }
+    
+    .values {
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 5px;
+    }
+    
+    .values h1 {
+        color: #007bff;
+    }
+    
+    .values ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    
+    .values li {
+        margin-bottom: 5px;
+    }
+    
+    /* About Us Styles */
+    .about-us {
+        margin-left: 100px;
+    }
+    .about-us h1 {
+        color: #007bff;
+        margin-bottom: 10px;
+    }
+    
+    
+    .about-us p {
+        line-height: 1.6;
+    }
+
+/* Responsive styles */
+@media only screen and (max-width: 928px) {
+    .about-us {
+        margin-left: 5px;
+    }
+
+    .about-us img {
+        max-width: 100px;
+        margin-right: 20px;
+    }
+}
+

@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quarantine Table</title>
+    <link rel="stylesheet" href="{% static 'staff_app/table.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><img src="{% static 'index_app/ministry-of-agriculture-animal-industry-and-fisheries_0.png' %}" alt="image" class="image"></div>
+        <ul class="nav-links">
+            <li><a href="{% url 'staff:staff' %}">Home</a></li>
+            <li><a href="{% url 'staff:staff_profile' %}">Profile</a></li>
+            <li><a href="{% url 'auth:logout' %}">Logout</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <div class="header">
+            <h2>Quarantines</h2>
+            <div class="search-filter">
+                <a href="{% url 'staff:impose_quarantine' %}"><button>Create</button></a>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>QuarantineID</th>
+                    <th>District</th>
+                    <th>animal</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                {% for quarantine in quarantine %}
+                <tr onclick="redirectToQuarantineDetails({{ quarantine.id }})">
+                    <td>{{ quarantine.id }}</td>
+                    <td>{{ quarantine.district }}</td>
+                    <td>{{ quarantine.animal }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script src="{% static 'staff_app/table.js' %}"></script>
+    <script>
+        function redirectToQuarantineDetails(quarantineId) {
+            var url = "{% url 'staff:quarantine_details' 0 %}".replace('0', quarantineId);
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>

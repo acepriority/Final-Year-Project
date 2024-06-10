@@ -1,0 +1,44 @@
+{% extends 'index_app/base.html' %}
+
+{% load static %}
+
+{% block title %}home{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'index_app/indexpage.css' %}">
+{% endblock %}
+
+{% block content %}
+    <article class="Misson-Vision-Values">
+        <section>
+            <h1>Mission</h1>
+            <p>To transform subsistence farming to commercial agriculture</p>
+        </section>
+        <section>
+            <h1>Vision</h1>
+            <p>A competitive, profitable and sustainable agricultural sector</p>
+        </section>
+        <section class="values">
+            <div>
+                <h1>Values (PIIP-PC)</h1>
+                <ul>
+                    <li>Professionalism</li>
+                    <li>Integrity</li>
+                    <li>Innovation</li>
+                    <li>Partnerships</li>
+                    <li>Customer Centered</li>
+                </ul>
+            </div>
+        </section>
+    </article>
+
+    <article class="about-us">
+        <section>
+            <h1>About MAAIF</h1>
+            <div class="mandate">
+                <img src="{% static 'index_app/ministry-of-agriculture-animal-industry-and-fisheries_0.png' %}" alt="">
+                <p>The mandate of the Ministry of Agriculture, Animal Industry and Fisheries (MAAIF) is to promote and support sustainable and market oriented agricultural production, food security, and household incomes.</p>
+            </div>
+        </section>
+    </article>
+{% endblock %}

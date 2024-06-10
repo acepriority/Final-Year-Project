@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{% static 'trader_app/permit.css' %}">
+<title>Permit</title>
+</head>
+<body>
+<div class="container">
+    <div class="qr-code">
+        <div class="permit-title">
+            <img src="{% static 'ministrylogo_0.webp' %}" alt="Profile Picture">
+            <div class="title">
+                <h1>MAAIF MOVEMENT PERMIT</h1>
+            </div>
+        </div>
+        <img src="data:image/png;base64,{{ permit_base64_image_data }}" alt="QR Code" class="img-fluid">
+    </div>
+
+    <div class="divider1"></div>
+    <div class="divider2"></div>
+    <div class="divider3"></div>
+
+    <div class="permit-content-divider">
+        <h1>MOVEMENT PERMIT</h1>
+    </div>
+
+    <div class="person-info">
+        <div class="profile-picture">
+            <img src="{{request.user.userprofile.profile_picture.url}}" alt="Profile Picture">
+        </div>
+    
+        <div class="person-details">
+            <div class="person-details-labels">
+                <h4>No.</h4>
+                <h4>County of:</h4>
+                <h4>Surname:</h4>
+                <h4>Given Name:</h4>
+            </div>
+            <div class="person-details-inputs">
+                <h4>{{ permit.id }}</h4>
+                <h4>{{ request.user.userprofile.county }}</h4>
+                <h4>{{ request.user.first_name }}</h4>
+                <h4>{{request.user.last_name}}</h4>
+            </div>
+        </div>
+    </div>
+    
+    <div class="permit-info">
+        <div class="permit-info-labels">
+            <h1>a) is allowed to move:</h1>
+            <h1>b) From:</h1>
+            <h1>c) To:</h1>
+            <h1>d) within the next:</h1>
+            <h1>e) Via:</h1>
+            <h1>f) For the purpose of:</h1>
+        </div>
+
+        <div class="permit-info-inputs">
+            <h1>{{ animal_info.animal.type }}</h1>
+            <h1>{{ permit.source }}</h1>
+            <h1>{{ permit.destination }}</h1>
+            <h1>{{ permit.license.id }}</h1>
+            <h1>Entebbe</h1>
+            <h1>{{ permit.purpose }}</h1>
+        </div>
+    </div>
+
+    <div class="inspector-date-info">
+        <div class="inspector-info">
+            <h4>{{ permit.user.first_name }} {{ permit.user.last_name }}</h4>
+            <div class="line"></div>
+            <h4>Inspecting Office</h4>
+        </div>
+        <div class="date-info">
+            <h4>{{ permit.date_of_expiry }}</h4>
+            <div class="line"></div>
+            <h4>Date</h4>
+        </div>
+    </div>
+    <div class="footer">
+        <h2>Conditions</h2>
+        <p>This permit is issued subject to observance of and compliance with the particular furnished and set out in (a) to (f) of this permit.</p>
+    </div>
+</div>
+
+<div>
+    <img src="data:image/png;base64,{{ animal_base64_image_data }}" alt="QR Code" class="img-fluid">
+
+    <h1>{{ animal_info.id }}</h1>
+    <h1>{{ animal_info.type }}</h1>
+    <h1>{{ animal_info.quantity }}</h1>
+    <h1>{{ animal_info.license.id }}</h1>
+    <h1>{{ animal_info.permit.id }}</h1>
+</div>
+
+</body>
+</html>

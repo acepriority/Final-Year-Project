@@ -1,0 +1,124 @@
+h2 {
+    font-size: 20px;
+    font-weight: normal; 
+}
+
+h3 {
+    font-size: 15px;
+    font-weight: normal;
+}
+
+h4 {
+    font-size: 9px;
+    font-weight: normal;
+}
+
+h5 {
+    font-size: 7px;
+    font-weight: normal;
+}
+
+.id-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.id-card-front {
+    width: 400px;
+    height: 250px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative;
+    margin: 2rem;
+    background-image: url('background.jpg');
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+}
+
+.background-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.card-title {
+    margin: 0;
+    position: absolute;
+    top: 10px;
+    left: 70px;
+    z-index: 1;
+}
+
+.id-card-front .photo {
+    width: 140px;
+    height: 140px;
+    background-color: #ccc;
+    position: absolute;
+    top: 50px;
+    left: 20px;
+    z-index: 1;
+}
+
+.id-card-front .photo img {
+    width: 100%;
+    height: 100%;
+}
+
+.id-card-front .details {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 45px;
+    left: 190px;
+    z-index: 1;
+}
+
+.id-card-front .details h3, 
+.id-card-front .details h4, 
+.id-card-front .details .DoE h3, 
+.id-card-front .details .DoE h4 {
+    margin: 3px 0;
+}
+
+
+.id-card-front .details .DoE {
+    position: absolute;
+    top: 120px;
+    left: 110px;
+    z-index: 1;
+}
+
+.id-card-back {
+    width: 400px;
+    height: 250px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative;
+    margin: 2rem;
+    background-image: url('background.jpg');
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+}
+
+.id-card-back .barcode {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    background-color: #fffcfc;
+    z-index: 1;
+}
+
+.id-card-back .photo img {
+    width: 100%;
+    height: 100%;
+}

@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applicant Details</title>
+    <link rel="stylesheet" href="{% static 'staff_app/applicant_detail.css' %}">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <img src="{% static 'index_app/ministry-of-agriculture-animal-industry-and-fisheries_0.png' %}" alt="Logo" class="logo">
+            <ul>
+                <li><a href="{% url 'staff:staff' %}">Home</a></li>
+                <li><a href="{% url 'staff:staff_profile' %}">Profile</a></li>
+                <li><a href="{% url 'auth:logout' %}">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="profile-form">
+            <div class="profile-picture">
+                <img src="{{applicant.profile_picture.url}}" alt="Profile Picture">
+            </div>
+            <form>
+                <div class="form-group">
+                    <label>Applicant ID:</label>
+                    <input type="text" value="{{applicant.id}}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>First Name:</label>
+                    <input type="text" value="{{applicant.first_name}}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Last Name:</label>
+                    <input type="text" value="{{applicant.last_name}}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>NIN:</label>
+                    <input type="text" value="{{applicant.nin}}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Sex:</label>
+                    <input type="text" value="{{applicant.sex}}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth:</label>
+                    <input type="text" value="{{applicant.date_of_birth}}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Telephone:</label>
+                    <input type="text" value="0{{applicant.telephone}}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="text" value="{{applicant.email}}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Village:</label>
+                    <input type="text" value="{{applicant.village}}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Parish:</label>
+                    <input type="text" value="{{applicant.parish}}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>S. County:</label>
+                    <input type="text" value="{{applicant.s_county}}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>County:</label>
+                    <input type="text" value="{{applicant.county}}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>District:</label>
+                    <input type="text" value="{{applicant.district}}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Date Submitted:</label>
+                    <input type="text" value="{{applicant.date_submitted}}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Status:</label>
+                    <input type="text" value="{{applicant.status}}" disabled>
+                </div>
+            </form>
+            <div class="container">
+                <div class="buttons">
+                    <button onclick="toggleRejectReason()" class="reject">Reject</button>
+                    <form id="rejectForm" action="{% url 'staff:reject_applicant' applicant.id %}" method="post" style="display: none;">
+                        {% csrf_token %}
+                        <textarea name="reason" id="reason" placeholder="Enter reason for rejection"></textarea>
+                        <button type="submit" class="reject">Submit</button>
+                    </form>
+                    <a href="{% url 'staff:approve_applicant' applicant.id %}"><button class="approve">Approve</button></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleRejectReason() {
+            var rejectForm = document.getElementById("rejectForm");
+            var reason = document.getElementById("reason");
+    
+            if (rejectForm.style.display === "none") {
+                rejectForm.style.display = "block";
+                reason.focus();
+            } else {
+                rejectForm.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

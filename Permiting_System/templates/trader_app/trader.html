@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trader</title>
+    <link rel="stylesheet" href="{% static 'trader_app/trader.css' %}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="{% static 'index_app/ministry-of-agriculture-animal-industry-and-fisheries_0.png' %}" alt="MAAIF Logo" class="logo">
+            <nav>
+                <ul>
+                    <li><a href="{% url 'trader:trader' %}">Home</a></li>
+                    <li><a href="{% url 'trader:trader_profile' %}">Profile</a></li>
+                    <li><a href="{% url 'trader:license' %}">License</a></li>
+                    <li><a href="{% url 'auth:logout' %}">Log Out</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main class="profile-container">
+        <div class="profile-card">
+            <div class="profile-header">
+                <img src="{{user.userprofile.profile_picture.url}}" alt="Profile Picture" class="profile-pic">
+                <div class="profile-info">
+                    <h1>{{user.first_name}} {{user.last_name}}</h1>
+                </div>
+            </div>
+            <div class="profile-details">
+                <div class="profile-column">
+                    <p><strong>UserID:</strong> {{user.id}}</p>
+                    <p><strong>Username:</strong> {{user.username}}</p>
+                    <p><strong>Surname:</strong> {{user.first_name}}</p>
+                    <p><strong>Given Name:</strong> {{user.last_name}}</p>
+                </div>
+                <div class="profile-column">
+                    <p><strong>County of:</strong> {{user.userprofile.county}}</p>
+                    <p><strong>NIN:</strong> {{user.userprofile.nin}}</p>
+                    <p><strong>Sex:</strong> {{user.userprofile.sex}}</p>
+                    <p><strong>LicenseID:</strong> {{license.id}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="history">
+            <h2>History</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Permit No.</th>
+                        <th>Source</th>
+                        <th>Destination</th>
+                        <th>Purpose</th>
+                        <th>DVO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for permit in permits %}
+                    <tr onclick="redirectToPermit({{ permit.id }})">
+                        <td>{{ permit.id }}</td>
+                        <td>{{ permit.source }}</td>
+                        <td>{{ permit.destination }}</td>
+                        <td>{{ permit.purpose }}</td>
+                        <td>{{ permit.user.first_name }} {{ permit.user.last_name }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        function redirectToPermit(permitId) {
+            var url = "{% url 'trader:permit' 0 %}".replace('0', permitId);;
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>

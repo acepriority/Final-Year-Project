@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quarantine Details</title>
+    <link rel="stylesheet" href="{% static 'staff_app/applicant_detail.css' %}">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <img src="{% static 'index_app/ministry-of-agriculture-animal-industry-and-fisheries_0.png' %}" alt="Logo" class="logo">
+            <ul>
+                <li><a href="{% url 'staff:staff' %}">Home</a></li>
+                <li><a href="{% url 'staff:staff_profile' %}">Profile</a></li>
+                <li><a href="{% url 'auth:logout' %}">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <div class="profile-form">
+                <form>
+                    <div class="form-group">
+                        <label>QuarantineID:</label>
+                        <input type="text" value="{{quarantine.id}}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>District:</label>
+                        <input type="text" value="{{quarantine.district}}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Animal:</label>
+                        <input type="text" value="{{quarantine.animal}}" disabled>
+                    </div>
+                    <div class="buttons">
+                        <a href="{% url 'staff:remove_quarantine' quarantine.id %}"><button type="button" class="reject" id="reject-btn">Remove</button></a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

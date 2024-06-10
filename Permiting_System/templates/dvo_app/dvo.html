@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requests</title>
+    <link rel="stylesheet" href="{% static 'staff_app/table.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><img src="{% static 'index_app/ministry-of-agriculture-animal-industry-and-fisheries_0.png' %}" alt="" class="image"></div>
+        <ul class="nav-links">
+            <li><a href="{% url 'dvo:dvo' %}">Home</a></li>
+            <li><a href="{% url 'dvo:dvo_profile' %}">Profile</a></li>
+            <li><a href="{% url 'auth:logout' %}">Logout</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <div class="header">
+            <h2>Requests</h2>
+            <div class="search-filter">
+                <input type="text" id="searchInput" placeholder="Search...">
+                <button id="filterButton">Filter</button>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>RequestID</th>
+                    <th>Trader/Farmer Name</th>
+                    <th>LC_1</th>
+                    <th>Animal Type</th>
+                    <th>Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for permit_request in permit_requests %}
+                <tr onclick="redirectToPermitRequestDetails({{ permit_request.id }})">
+                    <td>{{ permit_request.id }}</td>
+                    <td>{{ permit_request.license_id.user.first_name }} {{ permit_request.license_id.user.last_name }}</td>
+                    <td>{{ permit_request.user.first_name }} {{ permit_request.user.last_name }} </td>
+                    <td>{{ permit_request.animal_type.type }}</td>
+                    <td>{{ permit_request.quantity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            </tbody>
+        </table>
+    </div>
+    <script src="{% static 'staff_app/table.js' %}"></script>
+    <script>
+        function redirectToPermitRequestDetails(requestId) {
+            var url = "{% url 'dvo:permit_request_details' 0 %}".replace('0', requestId);;
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>

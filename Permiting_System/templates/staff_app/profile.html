@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="{% static 'staff_app/profile.css' %}">
+</head>
+<body>
+    <header>
+        <div class="logo"><img src="{% static 'index_app/ministry-of-agriculture-animal-industry-and-fisheries_0.png' %}" class="image"></div>
+        <nav>
+            <a href="{% url 'staff:staff' %}">Home</a>
+            <a href="{% url 'staff:staff_profile' %}">Profile</a>
+            <a href="{% url 'auth:logout' %}">Log Out</a>
+        </nav>
+    </header>
+    <main>
+        <div class="container">
+            <div class="profile-details">
+                <h2>Profile Details</h2>
+                <div class="profile-picture-section">
+                    <div class="profile-picture" id="profile-picture"><img src="{{user.userprofile.profile_picture.url}}" class="image2"></div>
+                    <!-- <input type="file" id="profile-picture-input" accept="image/*" style="display: none;" onchange="changeProfilePicture(event)">
+                    <button class="change-btn" onclick="document.getElementById('profile-picture-input').click()">Change</button> -->
+                </div>
+                <div class="field">
+                    <label>UserID</label>
+                    <input type="text" id="user_id" value="{{ user.id }}" disabled>
+                    <!-- <button class="edit-btn" onclick="enableEdit('first-name')">Edit</button> -->
+                </div>
+                <div class="field">
+                    <label>First Name</label>
+                    <input type="text" id="username" value="{{ user.username }}" disabled>
+                    <!-- <button class="edit-btn" onclick="enableEdit('first-name')">Edit</button> -->
+                </div>
+                <div class="field">
+                    <label>First Name</label>
+                    <input type="text" id="first-name" value="{{ user.first_name }}" disabled>
+                    <!-- <button class="edit-btn" onclick="enableEdit('first-name')">Edit</button> -->
+                </div>
+                <div class="field">
+                    <label>Last Name</label>
+                    <input type="text" id="last-name" value="{{ user.last_name }}" disabled>
+                    <!-- <button class="edit-btn" onclick="enableEdit('last-name')">Edit</button> -->
+                </div>
+                <div class="field">
+                    <label>NIN</label>
+                    <input type="text" id="last-name" value="{{ user.userprofile.nin }}" disabled>
+                </div>
+                <div class="field">
+                    <label>Sex</label>
+                    <input type="text" id="last-name" value="{{ user.userprofile.sex }}" disabled>
+                </div>
+                <div class="field">
+                    <label>Date</label>
+                    <input type="text" id="last-name" value="{{ user.userprofile.date_of_birth }}" disabled>
+                </div>
+                <div class="field">
+                    <label>Telephone</label>
+                    <input type="text" id="last-name" value="0{{ user.userprofile.telephone }}" disabled>
+                </div>
+                <div class="field">
+                    <label>Email</label>
+                    <input type="text" id="last-name" value="{{ user.email }}" disabled>
+                </div>
+                <div class="field">
+                    <label>Village</label>
+                    <input type="text" id="last-name" value="{{ user.userprofile.village }}" disabled>
+                </div>
+                <div class="field">
+                    <label>Parish</label>
+                    <input type="text" id="last-name" value="{{ user.userprofile.parish }}" disabled>
+                </div>
+                <div class="field">
+                    <label>Sub_county</label>
+                    <input type="text" id="last-name" value="{{ user.userprofile.s_county }}" disabled>
+                </div>
+                <div class="field">
+                    <label>County</label>
+                    <input type="text" id="last-name" value="{{ user.userprofile.county }}" disabled>
+                </div>
+                <div class="field">
+                    <label>District</label>
+                    <input type="text" id="last-name" value="{{ user.userprofile.district }}" disabled>
+                </div>
+            </div>
+            <div class="reset-password">
+                <h2>Reset Password</h2>
+                <a href="{% url 'auth:reset_password' %}"><button class="reset-btn">Reset Password</button></a>
+            </div>
+        </div>
+    </main>
+    <script src="{% static 'staff_app/applicant_detail.js' %}"></script>
+</body>
+</html>

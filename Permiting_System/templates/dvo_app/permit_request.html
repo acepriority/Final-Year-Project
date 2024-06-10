@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transporter Information Form</title>
+    <link rel="stylesheet" href="{% static 'dvo_app/permit_request.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="#" class="logo"><img src="{% static 'index_app/ministry-of-agriculture-animal-industry-and-fisheries_0.png' %}" class="image"></a>
+            <div class="nav-links">
+                <a href="{% url 'dvo:dvo' %}">Home</a>
+                <a href="{% url 'dvo:dvo_profile' %}">Profile</a>
+                <a href="{% url 'auth:logout' %}">Logout</a>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <div class="form-container">
+            <form action="{% url 'dvo:generate_permit' %}" method="post">
+                {% csrf_token %}
+                <h2>Trader/Farmer Information</h2>
+                <div class="input-group">
+                    <label for="request_id"><i class="fas fa-id-badge"></i> Request ID:</label>
+                    <input type="text" id="request_id" name="request_id" placeholder="Request ID" value="{{ permit_request.id }}" required>
+                </div>
+                <div class="input-group">
+                    <label for="license_id"><i class="fas fa-id-badge"></i> User ID:</label>
+                    <input type="text" id="license_id" name="license_id" placeholder="User ID" value="{{ permit_request.license_id.id }}" required>
+                </div>
+                <div class="input-group">
+                    <label for="username"><i class="fas fa-user"></i> Username:</label>
+                    <input type="text" id="username" name="username" placeholder="Username" value="{{ permit_request.license_id.user.username }}" required>
+                </div>
+                <div class="input-group">
+                    <label for="first-name"><i class="fas fa-user-tag"></i> First Name:</label>
+                    <input type="text" id="first-name" name="first-name" placeholder="First Name" value="{{ permit_request.license_id.user.first_name }}" required>
+                </div>
+                <div class="input-group">
+                    <label for="last-name"><i class="fas fa-user-tag"></i> Last Name:</label>
+                    <input type="text" id="last-name" name="last-name" placeholder="Last Name" value="{{ permit_request.license_id.user.last_name }}" required>
+                </div>
+
+                <h2>Travel Information</h2>
+                <div class="input-group">
+                    <label for="source"><i class="fas fa-map-marker-alt"></i> Source:</label>
+                    <input type="text" id="source" name="source" placeholder="Source" required>
+                </div>
+                <div class="input-group">
+                    <label for="destination"><i class="fas fa-map-marker-alt"></i> Destination:</label>
+                    <input type="text" id="destination" name="destination" placeholder="Destination" required>
+                </div>
+                <div class="input-group">
+                    <label for="purpose"><i class="fas fa-question-circle"></i> Purpose:</label>
+                    <input type="text" id="purpose" name="purpose" placeholder="Purpose" required>
+                </div>
+
+                <h2>Animal Information</h2>
+                <div class="input-group">
+                    <label for="animal-type"><i class="fas fa-paw"></i> Type:</label>
+                    <select id="animalType" name="animal_type" required>
+                        <option value="cattle">cattle</option>
+                        <option value="goat">goat</option>
+                        <option value="sheep">sheep</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="quantity"><i class="fas fa-hashtag"></i> Quantity:</label>
+                    <input type="number" id="quantity" name="quantity" placeholder="Quantity" required>
+                </div>
+
+                <h2>LC1 Letter</h2>
+                <div class="image-display" id="image-display">
+                    {% if permit_request.lc1_letter %}
+                        <img src="{{ permit_request.lc1_letter.url }}" alt="LC1 Image" id="retrieved-image" class="image-preview">
+                    {% else %}
+                        <p>No LC1 letter uploaded.</p>
+                    {% endif %}
+                </div>
+
+                <button type="submit"><i class="fas fa-paper-plane"></i>Generate Permit</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
