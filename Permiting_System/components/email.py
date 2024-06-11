@@ -5,6 +5,7 @@ from email.message import EmailMessage
 from datetime import datetime, timedelta
 from django.template.loader import render_to_string
 from django.conf import settings
+from auth_app.utils import URLBuilder
 
 
 class SendEmailMixin:
@@ -62,7 +63,9 @@ class SendEmailMixin:
         em['To'] = receiver_email
         em['Subject'] = subject
 
-        url = f'http://127.0.0.1:8000/update_details/{applicant_id}/'
+        url_builder = URLBuilder(request)
+        url = url_builder.build_url('update_applicant_details', applicant_id=applicant_id)
+
         email_body = render_to_string(
             'applicant_rejection_email.html', {
                 'subject': subject,
@@ -92,7 +95,9 @@ class SendEmailMixin:
         em['To'] = receiver_email
         em['Subject'] = subject
 
-        url = f'http://127.0.0.1:8000/login'
+        url_builder = URLBuilder(request)
+        url = url_builder.build_url('login')
+
         email_body = render_to_string(
             'applicant_approval_email.html', {
                 'subject': subject,
@@ -162,7 +167,9 @@ class SendEmailMixin:
         em['To'] = receiver_email
         em['Subject'] = subject
 
-        url = f'http://127.0.0.1:8000/reset_password/{receiver_email}/'
+        url_builder = URLBuilder(request)
+        url = url_builder.build_url('auth:index_reset_password', receiver_email=receiver_email)
+
         email_body = render_to_string(
             'reset_password_email.html', {
                 'url': url,

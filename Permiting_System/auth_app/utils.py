@@ -1,10 +1,12 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth import login
 from django.core.cache import cache
 from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth import authenticate
 from .models import User
+from django.urls import reverse
+from django.contrib.sites.shortcuts import get_current_site
 
 
 class LoginMixin:
@@ -123,3 +125,38 @@ class LoginMixin:
                 messages.error(request, 'Login disabled due to multiple invalid attempts. Try again after 5 minutes.')
 
             return redirect('login')
+
+
+class URLBuilder:
+    """
+    A utility class to build absolute URLs for the current site.
+
+    Attributes:
+        scheme (str): The URL scheme ('http' or 'https').
+        host (str): The host/domain of the current site.
+    """
+
+    def __init__(self, request):
+        """
+        Initializes the URLBuilder with the scheme and host.
+
+        Args:
+            request: The Django request object.
+        """
+        self.scheme = 'https' if request.is_secure() else 'http'
+        self.host = get_current_site(request).domain
+
+    def build_url(self, view_name, *args, **kwargs):
+        """
+        Builds a full URL for the given view name.
+
+        Args:
+            view_name (str): The name of the view.
+            *args: Positional arguments for the view.
+            **kwargs: Keyword arguments for the view.
+
+        Returns:
+            str: The full URL for the given view.
+        """
+        path = reverse(view_name, args=args, kwargs=kwargs)
+        return f"{self.scheme}://{self.host}{path}"
