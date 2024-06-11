@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from components.generate_qr_code import GenerateQRCodeMixin
 import base64
+from auth_app.utils import URLBuilder
 
 
 class Index(ViewIndexPages, View):
@@ -106,8 +107,12 @@ class VerifyPermit(View):
         try:
             model = apps.get_model('dvo_app', 'Permit')
             permit = model.objects.get(id=id)
+
+            url_builder = URLBuilder(request)
+            url = url_builder.build_url('display_permit', permit.id)
+
             response_data = {
-                'url': f'127.0.0.1:8000/display/{permit.id}/'
+                'url': url
             }
             return JsonResponse(response_data)
         except model.DoesNotExist:
