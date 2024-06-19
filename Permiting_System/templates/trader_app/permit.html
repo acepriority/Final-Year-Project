@@ -14,6 +14,7 @@
             <img src="{% static 'ministrylogo_0.webp' %}" alt="Profile Picture">
             <div class="title">
                 <h1>MAAIF MOVEMENT PERMIT</h1>
+                <h1>(-District to District-)</h1>
             </div>
         </div>
         <img src="data:image/png;base64,{{ permit_base64_image_data }}" alt="QR Code" class="img-fluid">
@@ -53,8 +54,6 @@
             <h1>a) is allowed to move:</h1>
             <h1>b) From:</h1>
             <h1>c) To:</h1>
-            <h1>d) within the next:</h1>
-            <h1>e) Via:</h1>
             <h1>f) For the purpose of:</h1>
         </div>
 
@@ -63,7 +62,6 @@
             <h1>{{ permit.source }}</h1>
             <h1>{{ permit.destination }}</h1>
             <h1>{{ permit.license.id }}</h1>
-            <h1>Entebbe</h1>
             <h1>{{ permit.purpose }}</h1>
         </div>
     </div>

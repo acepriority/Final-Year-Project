@@ -31,25 +31,25 @@
                 </div>
                 <div class="input-group">
                     <label for="license_id"><i class="fas fa-id-badge"></i> User ID:</label>
-                    <input type="text" id="license_id" name="license_id" placeholder="User ID" value="{{ permit_request.license_id.id }}" required>
+                    <input type="text" id="license_id" name="license_id" placeholder="User ID" value="{{ permit_request.license_id }}" required>
                 </div>
                 <div class="input-group">
                     <label for="username"><i class="fas fa-user"></i> Username:</label>
-                    <input type="text" id="username" name="username" placeholder="Username" value="{{ permit_request.license_id.user.username }}" required>
+                    <input type="text" id="username" name="username" placeholder="Username" value="{{ permit_request.user.username }}" required>
                 </div>
                 <div class="input-group">
                     <label for="first-name"><i class="fas fa-user-tag"></i> First Name:</label>
-                    <input type="text" id="first-name" name="first-name" placeholder="First Name" value="{{ permit_request.license_id.user.first_name }}" required>
+                    <input type="text" id="first-name" name="first-name" placeholder="First Name" value="{{ permit_request.user.first_name }}" required>
                 </div>
                 <div class="input-group">
                     <label for="last-name"><i class="fas fa-user-tag"></i> Last Name:</label>
-                    <input type="text" id="last-name" name="last-name" placeholder="Last Name" value="{{ permit_request.license_id.user.last_name }}" required>
+                    <input type="text" id="last-name" name="last-name" placeholder="Last Name" value="{{ permit_request.user.last_name }}" required>
                 </div>
 
                 <h2>Travel Information</h2>
                 <div class="input-group">
                     <label for="source"><i class="fas fa-map-marker-alt"></i> Source:</label>
-                    <input type="text" id="source" name="source" placeholder="Source" required>
+                    <input type="text" id="source" name="source" value="{{ permit_request.district }}" required>
                 </div>
                 <div class="input-group">
                     <label for="destination"><i class="fas fa-map-marker-alt"></i> Destination:</label>

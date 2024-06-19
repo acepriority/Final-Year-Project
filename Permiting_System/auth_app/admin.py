@@ -2,10 +2,9 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from .models import UserProfile
-from staff_app.models import Applicant
-from trader_app.models import License
+from staff_app.models import Trader, TraderLicense
 from dvo_app.models import Animal, Permit, AnimalInfo
-from lc5_app.models import PermitRequest
+from trader_app.models import PermitRequest
 
 
 class UserProfileInline(admin.StackedInline):
@@ -36,9 +35,9 @@ class CustomUserAdmin(UserAdmin):
 
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
-admin.site.register(Applicant)
+admin.site.register(Trader)
 admin.site.register(Animal)
-admin.site.register(License)
 admin.site.register(Permit)
 admin.site.register(AnimalInfo)
 admin.site.register(PermitRequest)
+admin.site.register(TraderLicense)

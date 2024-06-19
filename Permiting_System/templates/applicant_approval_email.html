@@ -14,36 +14,5 @@
     <p>You can now log in to your account using the following link:</p>
     <a href="{{ url }}">{{ url }}</a>
     <p>Thank you for joining us!</p>
-
-    <div class="id-card">
-        <div class="id-card-front">
-            <div class="background-overlay"></div>
-            <h2 class="card-title">Livestock Transportation License</h2>
-            <div class="photo">
-                <img src="{{ user_profile.profile_picture }}" alt="Profile Picture">
-                <h5>HOLDER'S SIGNATURE</h5>
-            </div>
-            <div class="details">
-                <h4>FIRST NAME</h4>
-                <h3>{{ user_profile.user.first_name }}</h3>
-                <h4>LAST NAME</h4>
-                <h3>{{ user_profile.user.last_name }}</h3>
-                <h4>ID</h4>
-                <h3>{{ license.id }}</h3>
-                <h4>Date of Birth</h4>
-                <h3>{{ user_profile.date_of_birth }}</h3>
-                <div class="DoE">
-                    <h4>Date of Expiry</h4>
-                    <h3>{{ license.date_of_expiry }}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="id-card-back">
-            <div class="background-overlay"></div>
-            <div class="barcode">
-                <img src="barcode.png" alt="image">
-            </div>
-        </div>
-    </div>
 </body>
 </html>

@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'auth_app',
     'staff_app',
     'dvo_app',
-    'lc5_app',
     'trader_app',
 ]
 

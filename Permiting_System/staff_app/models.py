@@ -1,10 +1,15 @@
 from django.db import models
+from django.contrib.auth.models import User
 import enum
+from django.apps import apps
 
 
 class Quarantine(models.Model):
     district = models.CharField(max_length=30)
     animal = models.CharField(max_length=30)
+
+    def __str__(self):
+        return f'Quarantine for {self.animal} in {self.district}'
 
 
 class ApplicantChoices(str, enum.Enum):
@@ -17,12 +22,13 @@ class ApplicantChoices(str, enum.Enum):
         return tuple((x.name, x.value) for x in cls)
 
 
-class Applicant(models.Model):
+class Trader(models.Model):
     profile_picture = models.ImageField(
         null=True,
         blank=True,
         upload_to='profile_pictures')
     nin = models.CharField(max_length=30, unique=True)
+    license_id = models.IntegerField(unique=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     email = models.EmailField(max_length=30)
@@ -41,3 +47,31 @@ class Applicant(models.Model):
         max_length=1,
         choices=ApplicantChoices.choices()
         )
+
+    def __str__(self):
+        return f'Registration for {self.first_name} {self.last_name}'
+
+    @classmethod
+    def get_trader_with_permits(cls, license_id):
+        try:
+            trader = cls.objects.get(license_id=license_id)
+            Permit = apps.get_model('dvo_app', 'Permit')
+            permits = Permit.objects.filter(trader=trader)
+            return trader, permits
+        except cls.DoesNotExist:
+            return None, None
+
+
+class TraderLicense(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    trader = models.ForeignKey(Trader, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'License for {self.user.username}'
+
+    def get_license_id_for_user(user):
+        try:
+            trader_license = TraderLicense.objects.get(user=user)
+            return trader_license.trader.license_id
+        except TraderLicense.DoesNotExist:
+            return None

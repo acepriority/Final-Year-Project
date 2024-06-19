@@ -78,7 +78,7 @@ class SendEmailMixin:
 
         self.send_email(em, receiver_email)
 
-    def send_approval_email(self, request, username, password, receiver_email, user_profile, license):
+    def send_approval_email(self, request, username, password, receiver_email):
         """
         Sends an approval email to the specified recipient.
 
@@ -103,9 +103,7 @@ class SendEmailMixin:
                 'subject': subject,
                 'username': username,
                 'password': password,
-                'url': url,
-                'user_profile': user_profile,
-                'license': license,
+                'url': url
             })
 
         em.set_content(f'', subtype='html')
@@ -152,8 +150,8 @@ class SendEmailMixin:
         """
         Sends a password reset email to the specified receiver email address.
 
-        This method constructs and sends an email containing a link for the 
-        user to reset their password. The link includes the receiver's email 
+        This method constructs and sends an email containing a link for the
+        user to reset their password. The link includes the receiver's email
         address as a URL parameter.
 
         Args:

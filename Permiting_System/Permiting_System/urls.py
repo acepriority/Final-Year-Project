@@ -25,6 +25,5 @@ urlpatterns = [
     path('auth/', include(('auth_app.urls', 'auth_app'), namespace='auth')),
     path('staff/', include(('staff_app.urls', 'staff_app'), namespace='staff')),
     path('dvo/', include(('dvo_app.urls', 'dvo_app'), namespace='dvo')),
-    path('lc5/', include(('lc5_app.urls', 'lc5_app'), namespace='lc5')),
     path('trader/', include(('trader_app.urls', 'trader_app'), namespace='trader')),
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -23,8 +23,8 @@ class DVO(LoginRequiredMixin, View):
             messages.error(request, f'Quarantine is imposed in {district}')
 
         try:
-            permit_requests_model = apps.get_model('lc5_app', 'PermitRequest')
-            permit_requests = permit_requests_model.objects.filter(user__userprofile__district=district, status='b')
+            permit_requests_model = apps.get_model('trader_app', 'PermitRequest')
+            permit_requests = permit_requests_model.objects.filter(district=district, status='b')
         except permit_requests_model.DoesNotExist:
             permit_requests = []
             messages.error(request, 'No permit requests found')
@@ -44,7 +44,7 @@ class DVOProfile(LoginRequiredMixin, View):
 
 
 class ViewPermitRequestDetails(LoginRequiredMixin, View):
-    model = apps.get_model('lc5_app', 'PermitRequest')
+    model = apps.get_model('trader_app', 'PermitRequest')
     template_name = 'dvo_app/permit_request.html'
 
     def get(self, request, request_id):
@@ -72,9 +72,9 @@ class GeneratePermit(LoginRequiredMixin, View):
         status = 'a'
 
         try:
-            license = apps.get_model('trader_app', 'License')
-            license = license.objects.get(pk=license_id)
-        except license.DoesNotExist:
+            trader = apps.get_model('staff_app', 'Trader')
+            trader = trader.objects.get(license_id=license_id)
+        except trader.DoesNotExist:
             messages.error(request, 'License does not exist')
             return render(request, self.template_name, context={})
 
@@ -90,14 +90,14 @@ class GeneratePermit(LoginRequiredMixin, View):
             return render(request, self.template_name, context={})
 
         try:
-            permit_request_model = apps.get_model('lc5_app', 'PermitRequest')
+            permit_request_model = apps.get_model('trader_app', 'PermitRequest')
             permit_request = permit_request_model.objects.get(id=request_id)
             permit_request.status = 'a'
             permit_request.save()
 
             permit = Permit.objects.create(
                 user=user,
-                license=license,
+                trader=trader,
                 source=source,
                 destination=destination,
                 purpose=purpose,
@@ -106,7 +106,7 @@ class GeneratePermit(LoginRequiredMixin, View):
 
             AnimalInfo.objects.create(
                 permit=permit,
-                license=license,
+                trader=trader,
                 animal=animal,
                 quantity=quantity
             )

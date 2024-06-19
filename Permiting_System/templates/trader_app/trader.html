@@ -15,7 +15,6 @@
                 <ul>
                     <li><a href="{% url 'trader:trader' %}">Home</a></li>
                     <li><a href="{% url 'trader:trader_profile' %}">Profile</a></li>
-                    <li><a href="{% url 'trader:license' %}">License</a></li>
                     <li><a href="{% url 'auth:logout' %}">Log Out</a></li>
                 </ul>
             </nav>
@@ -40,7 +39,7 @@
                     <p><strong>County of:</strong> {{user.userprofile.county}}</p>
                     <p><strong>NIN:</strong> {{user.userprofile.nin}}</p>
                     <p><strong>Sex:</strong> {{user.userprofile.sex}}</p>
-                    <p><strong>LicenseID:</strong> {{license.id}}</p>
+                    <p><strong>LicenseID:</strong> {{trader.license_id}}</p>
                 </div>
             </div>
         </div>
@@ -68,6 +67,8 @@
                     {% endfor %}
                 </tbody>
             </table>
+
+            <a href="{% url 'trader:permit_request' %}">Make Request</a>
         </div>
     </main>
 

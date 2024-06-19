@@ -7,6 +7,9 @@ from django.contrib.auth import authenticate
 from .models import User
 from django.urls import reverse
 from django.contrib.sites.shortcuts import get_current_site
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class LoginMixin:
@@ -46,8 +49,6 @@ class LoginMixin:
             return redirect('staff:staff')
         elif user_profile.is_dvo:
             return redirect('dvo:dvo')
-        elif user_profile.is_lc5:
-            return redirect('lc5:lc5')
         elif user_profile.is_trader:
             return redirect('trader:trader')
         else:
@@ -68,6 +69,39 @@ class LoginMixin:
         login(request, user)
         return self.access_control(request, user)
 
+    def lockout_account(self, request, lockout_time):
+        """
+        Handle the account lockout by calculating the remaining lockout time and displaying an error message.
+
+        Args:
+            request: The HTTP request object.
+            lockout_time: The datetime object representing the end of the lockout period.
+
+        Returns:
+            HttpResponseRedirect: Redirects to the login page with an error message.
+        """
+        remaining_lockout_time = (lockout_time - timezone.now()).total_seconds()
+        minutes, seconds = divmod(int(remaining_lockout_time), 60)
+        messages.error(request, f'Account locked. Try again after {minutes} minutes {seconds} seconds.')
+        logger.warning(f'User locked out for {minutes} minutes {seconds} seconds.')
+        return redirect('login')
+
+    def limit_attempts(self, request, username, lockout_key, LOCKOUT_DURATION):
+        """
+        Limit login attempts by setting a lockout period.
+
+        Args:
+            request: The HTTP request object.
+            lockout_key: The cache key for lockout.
+            LOCKOUT_DURATION: The duration for the lockout in seconds.
+
+        Returns:
+            HttpResponseRedirect: Redirects to the login page with an error message.
+        """
+        lockout_time = timezone.now() + timezone.timedelta(seconds=LOCKOUT_DURATION)
+        cache.set(lockout_key, lockout_time, timeout=LOCKOUT_DURATION)
+        messages.error(request, f'Account locked. Try again after {int(LOCKOUT_DURATION // 60)} minutes {int(LOCKOUT_DURATION % 60)} seconds.')
+
     def handle_login_attempt(self, request, username, password):
         """
         Handle a login attempt, including checking for lockout and incrementing login attempts.
@@ -81,27 +115,14 @@ class LoginMixin:
             HttpResponseRedirect or HttpResponse: A response based on the success or failure of the login attempt.
         """
         MAX_LOGIN_ATTEMPTS = 3
-        LOCKOUT_DURATION = 300
-        GENERAL_LOCKOUT_DURATION = 300
+        LOCKOUT_DURATION = 60
         lockout_key = f'lockout_{username.lower()}'
         login_attempts_key = f'login_attempts_{username.lower()}'
-
-        general_lockout_key = 'general_lockout'
-        general_lockout_time = cache.get(general_lockout_key)
-
-        if general_lockout_time and general_lockout_time > timezone.now():
-            remaining_lockout_time = (general_lockout_time - timezone.now()).total_seconds()
-            minutes, seconds = divmod(int(remaining_lockout_time), 60)
-            messages.error(request, f'Login disabled. Try again after {minutes} minutes {seconds} seconds.')
-            return redirect('login')
 
         lockout_time = cache.get(lockout_key)
 
         if lockout_time and lockout_time > timezone.now():
-            remaining_lockout_time = (lockout_time - timezone.now()).total_seconds()
-            minutes, seconds = divmod(int(remaining_lockout_time), 60)
-            messages.error(request, f'Account locked. Try again after {minutes} minutes {seconds} seconds.')
-            return redirect('login')
+            self.lockout_account(request, lockout_time)
 
         user = authenticate(request, username=username, password=password)
 
@@ -115,14 +136,15 @@ class LoginMixin:
                 cache.set(login_attempts_key, login_attempts, timeout=LOCKOUT_DURATION)
 
                 if login_attempts >= MAX_LOGIN_ATTEMPTS:
-                    lockout_time = timezone.now() + timezone.timedelta(seconds=LOCKOUT_DURATION)
-                    cache.set(lockout_key, lockout_time, timeout=LOCKOUT_DURATION)
-                    messages.error(request, f'Account locked. Try again after {int(LOCKOUT_DURATION // 60)} minutes {int(LOCKOUT_DURATION % 60)} seconds.')
+                    self.limit_attempts(request, username, lockout_key, LOCKOUT_DURATION)
+                    logger.warning(f'User {username} account locked due to too many login attempts.')
+
                 else:
                     messages.error(request, 'Invalid username or password')
+                    logger.warning(f'Invalid login attempt for user {username}. Attempts: {login_attempts}')
             else:
-                cache.set(general_lockout_key, timezone.now() + timezone.timedelta(seconds=GENERAL_LOCKOUT_DURATION), timeout=GENERAL_LOCKOUT_DURATION)
-                messages.error(request, 'Login disabled due to multiple invalid attempts. Try again after 5 minutes.')
+                messages.error(request, 'Invalid username or password')
+                logger.warning(f'Invalid login attempt for non-existing user {username}.')
 
             return redirect('login')
 

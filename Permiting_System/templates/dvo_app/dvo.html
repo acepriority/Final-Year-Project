@@ -29,7 +29,6 @@
                 <tr>
                     <th>RequestID</th>
                     <th>Trader/Farmer Name</th>
-                    <th>LC_1</th>
                     <th>Animal Type</th>
                     <th>Quantity</th>
                 </tr>
@@ -38,7 +37,6 @@
                 {% for permit_request in permit_requests %}
                 <tr onclick="redirectToPermitRequestDetails({{ permit_request.id }})">
                     <td>{{ permit_request.id }}</td>
-                    <td>{{ permit_request.license_id.user.first_name }} {{ permit_request.license_id.user.last_name }}</td>
                     <td>{{ permit_request.user.first_name }} {{ permit_request.user.last_name }} </td>
                     <td>{{ permit_request.animal_type.type }}</td>
                     <td>{{ permit_request.quantity }}</td>

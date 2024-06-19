@@ -10,7 +10,6 @@ class UserProfile(models.Model):
         upload_to='profile_pictures')
     is_staff = models.BooleanField(default=False)
     is_dvo = models.BooleanField(default=False)
-    is_lc5 = models.BooleanField(default=False)
     is_trader = models.BooleanField(default=False)
     nin = models.CharField(max_length=30, unique=True)
     sex = models.CharField(max_length=1)

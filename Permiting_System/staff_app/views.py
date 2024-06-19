@@ -3,14 +3,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import View
 from .utils import ViewTablesMixin, StaffRequiredMixin
 from django.apps import apps
-from .models import ApplicantChoices, Applicant
+from .models import ApplicantChoices, Trader
 from django.contrib.auth.models import User
 from django.utils import timezone
 from components.email import SendEmailMixin
 import random
 import string
-from datetime import datetime, timedelta
-from trader_app.models import License, DocumentChoices
 from .models import Quarantine
 
 
@@ -41,7 +39,7 @@ class ViewPermitstable(LoginRequiredMixin, ViewTablesMixin, View):
 
 class ViewLicensesTable(ViewTablesMixin, View):
     def __init__(self):
-        model = apps.get_model('trader_app', 'License')
+        model = apps.get_model('staff_app', 'TraderLicense')
         super().__init__(model=model, template='staff_app/licensestable.html')
 
 
@@ -53,12 +51,12 @@ class ViewPermitRequeststable(LoginRequiredMixin, ViewTablesMixin, View):
 
 class ViewApplicantsTable(LoginRequiredMixin, ViewTablesMixin, View):
     def __init__(self):
-        model = apps.get_model('staff_app', 'Applicant')
+        model = apps.get_model('staff_app', 'Trader')
         super().__init__(model=model, template='staff_app/applicantstable.html')
 
 
 class ApplicantDetails(LoginRequiredMixin, View):
-    model = Applicant
+    model = Trader
     template_name = 'staff_app/applicant_detail.html'
 
     def get(self, request, applicant_id):
@@ -67,7 +65,7 @@ class ApplicantDetails(LoginRequiredMixin, View):
 
 
 class RejectApplicant(LoginRequiredMixin, SendEmailMixin, View):
-    model = Applicant
+    model = Trader
     template = 'staff_app/staff.html'
 
     def post(self, request, applicant_id):
@@ -85,7 +83,7 @@ class RejectApplicant(LoginRequiredMixin, SendEmailMixin, View):
 
 
 class ApproveApplicant(LoginRequiredMixin, SendEmailMixin, View):
-    model = Applicant
+    model = Trader
     template_name = 'staff_app/staff.html'
 
     def get(self, request, applicant_id):
@@ -111,7 +109,6 @@ class ApproveApplicant(LoginRequiredMixin, SendEmailMixin, View):
             user=user,
             is_staff=False,
             is_dvo=False,
-            is_lc5=False,
             is_trader=True,
             profile_picture=applicant.profile_picture,
             nin=applicant.nin,
@@ -127,13 +124,13 @@ class ApproveApplicant(LoginRequiredMixin, SendEmailMixin, View):
 
         user_profile.save()
 
-        license = License.objects.create(
+        trader_model = apps.get_model('staff_app', 'TraderLicense')
+        trader_model.objects.create(
             user=user,
-            status=DocumentChoices.a.name,
-            date_of_expiry=datetime.now() + timedelta(days=365)
+            trader=applicant
         )
 
-        self.send_approval_email(request, username, password, applicant.email, user_profile, license)
+        self.send_approval_email(request, username, password, applicant.email)
 
         applicant.status = ApplicantChoices.a.name
         applicant.date_approved = timezone.now()

@@ -27,7 +27,7 @@ class Login(ViewIndexPages, View):
 
 
 class CreateApplicant(View):
-    model = apps.get_model('staff_app', 'Applicant')
+    model = apps.get_model('staff_app', 'Trader')
     template_name = 'index_app/applypage.html'
 
     def post(self, request):
@@ -35,6 +35,7 @@ class CreateApplicant(View):
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         nin = request.POST.get('nin')
+        license_id = request.POST.get('license_id')
         date_of_birth = request.POST.get('date_of_birth')
         sex = request.POST.get('sex')
         email = request.POST.get('email')
@@ -50,6 +51,7 @@ class CreateApplicant(View):
             first_name=first_name,
             last_name=last_name,
             nin=nin,
+            license_id=license_id,
             date_of_birth=date_of_birth,
             sex=sex,
             email=email,
@@ -69,7 +71,7 @@ class CreateApplicant(View):
 
 
 class UpdateApplicantDetails(View):
-    model = apps.get_model('staff_app', 'Applicant')
+    model = apps.get_model('staff_app', 'Trader')
     template_name = 'index_app/update_details.html'
 
     def get(self, request, applicant_id):
@@ -83,6 +85,7 @@ class UpdateApplicantDetails(View):
         applicant.first_name = request.POST.get('first_name')
         applicant.last_name = request.POST.get('last_name')
         applicant.nin = request.POST.get('nin')
+        applicant.license_id = request.POST.get('license_id')
         applicant.date_of_birth = request.POST.get('date_of_birth')
         applicant.sex = request.POST.get('sex')
         applicant.email = request.POST.get('email')
