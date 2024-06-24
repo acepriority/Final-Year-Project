@@ -1,12 +1,8 @@
-// script.js
-
-document.addEventListener('DOMContentLoaded', function () {
-    const togglePasswordButton = document.querySelector('.toggle-password');
-    const passwordInput = document.querySelector('#password');
-
-    togglePasswordButton.addEventListener('click', function () {
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-        this.textContent = type === 'password' ? '👁️' : '🙈';
+document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', () => {
+        const passwordField = button.previousElementSibling;
+        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordField.setAttribute('type', type);
+        button.innerHTML = type === 'password' ? '<i class="fa fa-eye"></i>' : '<i class="fa fa-eye-slash"></i>';
     });
 });

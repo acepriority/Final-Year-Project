@@ -9,6 +9,7 @@ from django.utils.decorators import method_decorator
 from components.generate_qr_code import GenerateQRCodeMixin
 import base64
 from auth_app.utils import URLBuilder
+from django.contrib import messages
 
 
 class Index(ViewIndexPages, View):
@@ -19,6 +20,16 @@ class Index(ViewIndexPages, View):
 class Apply(ViewIndexPages, View):
     def __init__(self):
         super().__init__(template_name='index_app/applypage.html')
+
+
+class About(ViewIndexPages, View):
+    def __init__(self):
+        super().__init__(template_name='index_app/aboutpage.html')
+
+
+class Act(ViewIndexPages, View):
+    def __init__(self):
+        super().__init__(template_name='index_app/actpage.html')
 
 
 class Login(ViewIndexPages, View):
@@ -101,44 +112,37 @@ class UpdateApplicantDetails(View):
         return redirect('index')
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class VerifyPermit(View):
-    def post(self, request):
-        data = json.loads(request.body)
-        id = data.get('id')
-
-        try:
-            model = apps.get_model('dvo_app', 'Permit')
-            permit = model.objects.get(id=id)
-
-            url_builder = URLBuilder(request)
-            url = url_builder.build_url('display_permit', permit.id)
-
-            response_data = {
-                'url': url
-            }
-            return JsonResponse(response_data)
-        except model.DoesNotExist:
-            return JsonResponse({'error': 'ID not found'}, status=404)
-
-    def get(self, request):
-        return JsonResponse({'error': 'Invalid request'}, status=400)
-
-
 class DisplayPermit(GenerateQRCodeMixin, View):
-    template_name = 'trader_app/permit.html'
+    template_name = 'index_app/permit.html'
 
-    def get(self, request, id):
-        model = apps.get_model('dvo_app', 'Permit')
-        permit = model.objects.get(id=id)
+    def get(self, request, permitId):
+        permit = self.model.objects.get(id=permitId)
 
-        permit_data = {
-            'permitId': id,
-            'first_name': request.user.first_name,
-            'last_name': request.user.last_name
-        }
+        url = f'http://178.128.28.119:8080/display/{permitId}'
+
+        permit_data = url
         permit_qr_code_image_data = self.generate_qr_code(permit_data)
         permit_base64_image_data = base64.b64encode(permit_qr_code_image_data).decode('utf-8')
-        context = {'permit': permit,
-                   'permit_base64_image_data': permit_base64_image_data}
-        return render(request, self.template_name, context)
+
+        try:
+            AnimalInfo = apps.get_model('dvo_app', 'AnimalInfo')
+            animal_info_list = AnimalInfo.objects.filter(permit=permit)
+        except AnimalInfo.DoesNotExist:
+            messages.error(request, 'Animal permit does not exist')
+            return render(request, self.template, context={'permit': permit, 'permit_base64_image_data': permit_base64_image_data})
+
+        animal_info_data = url
+        animal_qr_code_image_data = [self.generate_qr_code(info) for info in animal_info_data]
+        animal_base64_image_data = [base64.b64encode(qr_code).decode('utf-8') for qr_code in animal_qr_code_image_data]
+
+        zipped_animal_info = zip(animal_info_list, animal_base64_image_data)
+
+        total_animals = sum(animal_info.quantity for animal_info in animal_info_list)
+
+        context = {
+            'permit': permit,
+            'zipped_animal_info': zipped_animal_info,
+            'permit_base64_image_data': permit_base64_image_data,
+            'total_animals': total_animals
+        }
+        return render(request, self.template, context)

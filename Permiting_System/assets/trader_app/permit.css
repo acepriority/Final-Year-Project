@@ -178,10 +178,49 @@ body {
     font-style: italic;
 }
 
+.container-2 {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 10px;
+    max-width: 600px;
+    width: 90%;
+    margin: 20px auto;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.image {
+    max-width: 150px;
+}
+
+.image img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.animal-info h1 {
+    font-size: medium;
+    font-weight: 400;
+    margin: 20px;
+    color: #333;
+}
+
+.animal-info h1 strong {
+    font-weight: 700; 
+}
+
+
 @media screen and (max-width: 600px) {
     .container {
         max-width: 90%;
     }
+
+    .container-2 {
+        padding: 20px;
+    }
+
     .profile-picture {
         float: none;
         margin: 0 auto 20px;

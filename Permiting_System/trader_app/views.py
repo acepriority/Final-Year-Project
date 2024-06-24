@@ -54,8 +54,7 @@ class ViewPermit(LoginRequiredMixin, GenerateQRCodeMixin, View):
     def get(self, request, permitId):
         permit = self.model.objects.get(id=permitId)
 
-        url_builder = URLBuilder(request)
-        url = url_builder.build_url('trader:permit', permitId=permitId)
+        url = f'http://178.128.28.119:8080/display/{permitId}'
 
         permit_data = url
         permit_qr_code_image_data = self.generate_qr_code(permit_data)
@@ -63,20 +62,24 @@ class ViewPermit(LoginRequiredMixin, GenerateQRCodeMixin, View):
 
         try:
             AnimalInfo = apps.get_model('dvo_app', 'AnimalInfo')
-            animal_info = AnimalInfo.objects.get(permit=permit)
+            animal_info_list = AnimalInfo.objects.filter(permit=permit)
         except AnimalInfo.DoesNotExist:
             messages.error(request, 'Animal permit does not exist')
             return render(request, self.template, context={'permit': permit, 'permit_base64_image_data': permit_base64_image_data})
 
-        animal_info_data = {'id': animal_info.id, 'animal': animal_info.animal.type}
-        animal_qr_code_image_data = self.generate_qr_code(animal_info_data)
-        animal_base64_image_data = base64.b64encode(animal_qr_code_image_data).decode('utf-8')
+        animal_info_data = url
+        animal_qr_code_image_data = [self.generate_qr_code(info) for info in animal_info_data]
+        animal_base64_image_data = [base64.b64encode(qr_code).decode('utf-8') for qr_code in animal_qr_code_image_data]
+
+        zipped_animal_info = zip(animal_info_list, animal_base64_image_data)
+
+        total_animals = sum(animal_info.quantity for animal_info in animal_info_list)
 
         context = {
             'permit': permit,
-            'animal_info': animal_info,
+            'zipped_animal_info': zipped_animal_info,
             'permit_base64_image_data': permit_base64_image_data,
-            'animal_base64_image_data': animal_base64_image_data
+            'total_animals': total_animals
         }
         return render(request, self.template, context)
 
@@ -113,6 +116,6 @@ class MakePermitRequest(LoginRequiredMixin, View):
                 lc1_letter=lc1_letter,
                 status=status
             )
-            return HttpResponseForbidden(f"Permit request by {user} created successfully.")
+            return JsonResponse({'success': True})
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({'success': False, 'error': str(e)})

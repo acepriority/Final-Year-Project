@@ -8,6 +8,26 @@
     <link rel="stylesheet" href="{% static 'dvo_app/permit_request.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .alert {
+            display: none;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+        }
+        .alert-success {
+            color: #32a834;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .alert-error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -22,7 +42,7 @@
     </header>
     <main>
         <div class="form-container">
-            <form action="{% url 'dvo:generate_permit' %}" method="post">
+            <form id="permit-request-form" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <h2>Trader/Farmer Information</h2>
                 <div class="input-group">
@@ -61,18 +81,44 @@
                 </div>
 
                 <h2>Animal Information</h2>
-                <div class="input-group">
-                    <label for="animal-type"><i class="fas fa-paw"></i> Type:</label>
-                    <select id="animalType" name="animal_type" required>
-                        <option value="cattle">cattle</option>
-                        <option value="goat">goat</option>
-                        <option value="sheep">sheep</option>
-                    </select>
+                <div id="animal-info-container">
+                    <div class="animal-info-row">
+                        <div class="input-column">
+                            <div class="input-group">
+                                <label for="animal-type"><i class="fas fa-paw"></i> Type:</label>
+                                <select id="animal-type" name="animal_type" required>
+                                    <option value="cattle">Cattle</option>
+                                    <option value="pig">Pig</option>
+                                    <option value="goat">Goat</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="animal-sex"><i class="fas fa-venus-mars"></i> Sex:</label>
+                                <select id="animal-sex" name="sex" required>
+                                    <option value="M">Male</option>
+                                    <option value="F">Female</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-column">
+                            <div class="input-group">
+                                <label for="animal-color"><i class="fas fa-palette"></i> Color:</label>
+                                <div class="color-input-container">
+                                    <!-- <input type="color" id="animal-color" name="color" required> -->
+                                    <input type="text" id="animal-color-text" name="color" placeholder="Color" required>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label for="animal-quantity"><i class="fas fa-hashtag"></i> Quantity:</label>
+                                <input type="number" id="animal-quantity" name="quantity" placeholder="Quantity" required>
+                            </div>
+                        </div>
+                        <div class="input-group action-buttons">
+                            <button type="button" class="remove-btn"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label for="quantity"><i class="fas fa-hashtag"></i> Quantity:</label>
-                    <input type="number" id="quantity" name="quantity" placeholder="Quantity" required>
-                </div>
+                <button type="button" id="add-animal-btn"><i class="fas fa-plus"></i> Add Animal</button>
 
                 <h2>LC1 Letter</h2>
                 <div class="image-display" id="image-display">
@@ -83,9 +129,123 @@
                     {% endif %}
                 </div>
 
-                <button type="submit"><i class="fas fa-paper-plane"></i>Generate Permit</button>
+                <button type="submit"><i class="fas fa-paper-plane"></i> Generate Permit</button>
             </form>
         </div>
     </main>
+
+    <div class="alert alert-success" id="success-alert">Permit generated successfully!</div>
+    <div class="alert alert-error" id="error-alert">An error occurred while generating the permit.</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('permit-request-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+        
+                const formData = new FormData(this);
+                fetch("{% url 'dvo:generate_permit' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('success-alert').style.display = 'block';
+                        setTimeout(function() {
+                            document.getElementById('success-alert').style.display = 'none';
+                            document.getElementById('permit-request-form').reset();
+                            window.location.href = `{% url 'dvo:permit' 0 %}`.replace('0', data.permit.id);
+                        }, 3000); // 3 seconds delay before redirect
+                    } else {
+                        document.getElementById('error-alert').textContent = data.error;
+                        document.getElementById('error-alert').style.display = 'block';
+                        setTimeout(function() {
+                            document.getElementById('error-alert').style.display = 'none';
+                        }, 3000); // Hide the error message after 3 seconds
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('error-alert').textContent = 'An unexpected error occurred.';
+                    document.getElementById('error-alert').style.display = 'block';
+                    setTimeout(function() {
+                        document.getElementById('error-alert').style.display = 'none';
+                    }, 3000); // Hide the error message after 3 seconds
+                });
+            });
+        });
+
+        document.getElementById('add-animal-btn').addEventListener('click', function() {
+            const animalInfoContainer = document.getElementById('animal-info-container');
+            const newRow = document.createElement('div');
+            newRow.classList.add('animal-info-row');
+            newRow.innerHTML = `
+                <div class="input-column">
+                    <div class="input-group">
+                        <label for="animal-type"><i class="fas fa-paw"></i> Type:</label>
+                        <select id="animal-type" name="animal_type" required>
+                            <option value="cattle">cattle</option>
+                            <option value="pig">pig</option>
+                            <option value="goat">goat</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="animal-sex"><i class="fas fa-venus-mars"></i> Sex:</label>
+                        <select id="animal-sex" name="sex" required>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-column">
+                    <div class="input-group">
+                        <label for="animal-color"><i class="fas fa-palette"></i> Color:</label>
+                        <div class="color-input-container">
+                            <!-- <input type="color" id="animal-color" name="color" required> -->
+                            <input type="text" id="animal-color-text" name="color" placeholder="Color" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="quantity"><i class="fas fa-hashtag"></i> Quantity:</label>
+                        <input type="number" id="animal-quantity" name="quantity" placeholder="Quantity" required>
+                    </div>
+                </div>
+                <div class="input-group action-buttons">
+                    <button type="button" class="remove-btn"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            `;
+            const divider = document.createElement('hr');
+            divider.classList.add('animal-divider');
+
+            animalInfoContainer.appendChild(divider);
+            animalInfoContainer.appendChild(newRow);
+
+            // Add event listeners to the new buttons
+            newRow.querySelector('.remove-btn').addEventListener('click', function() {
+                animalInfoContainer.removeChild(divider);
+                animalInfoContainer.removeChild(newRow);
+            });
+        });
+
+        document.addEventListener('click', function(event) {
+            if (event.target && event.target.classList.contains('remove-btn')) {
+                const row = event.target.closest('.animal-info-row');
+                const divider = row.previousElementSibling;
+                const animalInfoContainer = document.getElementById('animal-info-container');
+                animalInfoContainer.removeChild(divider);
+                animalInfoContainer.removeChild(row);
+            }
+        });
+
+        document.addEventListener('input', function(event) {
+            if (event.target.id === 'animal-color') {
+                event.target.nextElementSibling.value = event.target.value;
+            } else if (event.target.id === 'animal-color-text') {
+                event.target.previousElementSibling.value = event.target.value;
+            }
+        });
+    </script>
 </body>
 </html>

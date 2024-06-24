@@ -1,0 +1,40 @@
+{% extends 'index_app/base.html' %}
+
+{% load static %}
+
+{% block title %}login{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'index_app/aboutpage.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+    <section>
+        <h2>Our Mission</h2>
+        <p>We aim to streamline the livestock transportation permit process in Uganda through a digitized system that enhances efficiency, accuracy, and regulatory compliance.</p>
+    </section>
+    <section>
+        <h2>How Our System Works</h2>
+        <p>Our Digitized Livestock Transportation Permit Verification System simplifies the process of obtaining and verifying permits for livestock movement. Here's how it works:</p>
+        <ol>
+            <li><strong>Permit Application:</strong> Users can apply for livestock transportation permits online by providing necessary details such as animal information, transport route, and vehicle details.</li>
+            <li><strong>Review and Approval:</strong> Veterinary officers review the application, inspect the animals if necessary, and approve the permit.</li>
+            <li><strong>Permit Issuance:</strong> Once approved, a digital permit is issued. The permit includes crucial details like transportation route and disease prevention measures.</li>
+            <li><strong>Verification:</strong> Law enforcement and regulatory officers can verify the permit in real-time using a mobile application that scans unique identifiers or QR codes.</li>
+        </ol>
+    </section>
+    <section>
+        <h2>Benefits</h2>
+        <ul>
+            <li>Improved efficiency in permit processing and issuance.</li>
+            <li>Enhanced data accuracy and reduced risk of fraud.</li>
+            <li>Better regulatory oversight and disease control.</li>
+            <li>Convenience for livestock owners and transporters.</li>
+        </ul>
+    </section>
+    <section>
+        <h2>Contact Us</h2>
+        <p>If you have any questions or need further information, please contact us at <a href="mailto:info@livestockpermit.ug">info@livestockpermit.ug</a>.</p>
+    </section>
+{% endblock %}

@@ -178,3 +178,36 @@ class SendEmailMixin:
         em.add_alternative(email_body, subtype='html')
 
         self.send_email(em, receiver_email)
+
+    def send_permit_email(self, request, receiver_email, permitId):
+        """
+        Sends a password reset email to the specified receiver email address.
+
+        This method constructs and sends an email containing a link for the
+        user to reset their password. The link includes the receiver's email
+        address as a URL parameter.
+
+        Args:
+            request (HttpRequest): The HttpRequest object.
+            receiver_email (str): The email address of the user who requested the password reset.
+        """
+        subject = 'Permit'
+
+        em = EmailMessage()
+        em['From'] = self.sender_email
+        em['To'] = receiver_email
+        em['Subject'] = subject
+
+        url_builder = URLBuilder(request)
+        url = url_builder.build_url('trader:permit', permitId=permitId)
+
+        email_body = render_to_string(
+            'permit_email.html', {
+                'url': url,
+                'subject': subject,
+            })
+
+        em.set_content(f'', subtype='html')
+        em.add_alternative(email_body, subtype='html')
+
+        self.send_email(em, receiver_email)

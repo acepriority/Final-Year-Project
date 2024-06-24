@@ -19,14 +19,11 @@
                     <a href="{% url 'index' %}" class="nav-link">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a href="{% url 'apply' %}" class="nav-link">Apply</a>
-                </li>
-                <li class="nav-item">
                     <div class="dropdown">
                         <a href="#">About</a>
                         <div class="dropdown-menu">
-                            <a href="#">Board of Directors</a>
-                            <a href="#">Animal Disease Act</a>
+                            <a href="{% url 'about' %}">About Us</a>
+                            <a href="{% url 'act' %}">Animal Disease Act</a>
                         </div>
                     </div>
                 </li>

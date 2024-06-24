@@ -43,8 +43,16 @@
                 </div>
             </div>
         </div>
+
         <div class="history">
-            <h2>History</h2>
+            <div class="history-header">
+                <h2>History</h2>
+                <div class="display-settings">
+                    <label for="num-permits">Display:</label>
+                    <input type="number" id="num-permits" min="1" value="1">
+                    <button id="set-display" class="set-display">Set</button>
+                </div>
+            </div>
             <table>
                 <thead>
                     <tr>
@@ -55,7 +63,7 @@
                         <th>DVO</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="history-tbody">
                     {% for permit in permits %}
                     <tr onclick="redirectToPermit({{ permit.id }})">
                         <td>{{ permit.id }}</td>
@@ -68,7 +76,7 @@
                 </tbody>
             </table>
 
-            <a href="{% url 'trader:permit_request' %}">Make Request</a>
+            <a href="{% url 'trader:permit_request' %}"><button>Make Request</button></a>
         </div>
     </main>
 
@@ -77,6 +85,28 @@
             var url = "{% url 'trader:permit' 0 %}".replace('0', permitId);;
             window.location.href = url;
         }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const setDisplayButton = document.getElementById("set-display");
+            const numPermitsInput = document.getElementById("num-permits");
+            const historyTbody = document.getElementById("history-tbody");
+        
+            setDisplayButton.addEventListener("click", function() {
+                const numPermits = parseInt(numPermitsInput.value, 10);
+                const allRows = Array.from(historyTbody.querySelectorAll("tr"));
+                
+                // Hide all rows initially
+                allRows.forEach(row => row.style.display = "none");
+                
+                // Show the specified number of rows
+                for (let i = 0; i < numPermits && i < allRows.length; i++) {
+                    allRows[i].style.display = "";
+                }
+            });
+        
+            // Trigger the initial display setting
+            setDisplayButton.click();
+        });
     </script>
 </body>
 </html>

@@ -20,26 +20,70 @@
     </header>
     <main>
         <div class="form-container">
-            <form action="{% url 'trader:permit_request' %}" method="post" enctype="multipart/form-data">
+            <form id="permit-request-form" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <label for="license_id">License ID of Trader/Farmer:</label>
                 <input type="text" id="license_id" name="license_id" value="{{license_id}}">
 
                 <label for="quantity">Number of Livestock:</label>
-                <input type="number" id="quantity" name="quantity" placeholder="Enter quantity">
+                <input type="number" id="quantity" name="quantity" placeholder="Enter quantity" required>
 
                 <label for="animal_type">Type of Livestock:</label>
-                <input type="text" id="type" name="animal_type" placeholder="Enter animal_type">
+                <input type="text" id="type" name="animal_type" placeholder="Enter animal_type" required>
 
-                <label for="district">Type of Livestock:</label>
-                <input type="text" id="district" name="district" placeholder="Enter district">
+                <label for="district">From:</label>
+                <input type="text" id="district" name="district" placeholder="Enter district" required>
 
                 <label for="lc1_letter">Upload LC1 Letter</label>
-                <input type="file" id="lc1_letter" name="lc1_letter" accept="image/*">
+                <input type="file" id="lc1_letter" name="lc1_letter" accept="image/*" required>
 
                 <button type="submit">Submit</button>
             </form>
         </div>
     </main>
+
+    <div class="alert alert-success" id="success-alert">Permit Request submitted successfully!</div>
+    <div class="alert alert-error" id="error-alert">An error occurred while submitting the form.</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('permit-request-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+        
+                const formData = new FormData(this);
+                fetch("{% url 'trader:permit_request' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('success-alert').style.display = 'block';
+                        setTimeout(function() {
+                            document.getElementById('success-alert').style.display = 'none';
+                            document.getElementById('permit-request-form').reset();
+                            window.location.href = "{% url 'trader:trader' %}";
+                        }, 3000); // 3 seconds delay before redirect
+                    } else {
+                        document.getElementById('error-alert').textContent = data.error;
+                        document.getElementById('error-alert').style.display = 'block';
+                        setTimeout(function() {
+                            document.getElementById('error-alert').style.display = 'none';
+                        }, 3000); // Hide the error message after 3 seconds
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('error-alert').textContent = 'An unexpected error occurred.';
+                    document.getElementById('error-alert').style.display = 'block';
+                    setTimeout(function() {
+                        document.getElementById('error-alert').style.display = 'none';
+                    }, 3000); // Hide the error message after 3 seconds
+                });
+            });
+        });
+    </script>
 </body>
 </html>

@@ -6,6 +6,10 @@ import enum
 
 
 class Animal(models.Model):
+    animal_img = models.ImageField(
+        null=True,
+        blank=True,
+        upload_to='animal')
     type = models.CharField(max_length=30)
 
     def __str__(self):

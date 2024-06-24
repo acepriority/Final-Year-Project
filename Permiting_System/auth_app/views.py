@@ -5,6 +5,7 @@ from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .utils import LoginMixin
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 from .models import UserProfile
 from components.email import SendEmailMixin
 from index_app.utils import ViewIndexPages
@@ -37,15 +38,14 @@ class VerifyEmail(ViewIndexPages, SendEmailMixin, View):
 
     def post(self, request):
         email = request.POST.get('email')
-        queryset = self.model.objects.filter(email=email).first()
-        user = queryset
+        user = self.model.objects.filter(email=email).first()
 
         if user is None:
             messages.error(request, f'User with email {email} not found.')
-            return render(request, self.template_name)
+            return JsonResponse({'success': False, 'error': f'User with email {email} not found.'}, status=404)
 
         self.send_reset_password_email(request, email)
-        return redirect('login')
+        return JsonResponse({'success': True}, status=200)
 
 
 class IndexResetPassword(View):

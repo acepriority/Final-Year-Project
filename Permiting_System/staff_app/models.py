@@ -56,7 +56,7 @@ class Trader(models.Model):
         try:
             trader = cls.objects.get(license_id=license_id)
             Permit = apps.get_model('dvo_app', 'Permit')
-            permits = Permit.objects.filter(trader=trader)
+            permits = Permit.objects.filter(trader=trader).order_by('-id')
             return trader, permits
         except cls.DoesNotExist:
             return None, None

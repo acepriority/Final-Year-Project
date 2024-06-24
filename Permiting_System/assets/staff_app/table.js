@@ -1,16 +1,29 @@
-document.getElementById('filterButton').addEventListener('click', filterCards);
-document.getElementById('searchInput').addEventListener('keyup', filterCards);
+document.addEventListener("DOMContentLoaded", function() {
+    const searchInput = document.getElementById('searchInput');
+    const table = document.querySelector('table tbody');
 
-function filterCards() {
-    const searchInput = document.getElementById('searchInput').value.toLowerCase();
-    const cards = document.querySelectorAll('.card');
+    function filterTable() {
+        const filterValue = searchInput.value.toLowerCase();
+        const rows = table.getElementsByTagName('tr');
 
-    cards.forEach(card => {
-        const cardName = card.getAttribute('data-name').toLowerCase();
-        if (cardName.includes(searchInput)) {
-            card.style.display = '';
-        } else {
-            card.style.display = 'none';
-        }
-    });
-}
+        Array.from(rows).forEach(row => {
+            const cells = row.getElementsByTagName('td');
+            let matchFound = false;
+
+            Array.from(cells).forEach(cell => {
+                if (cell.textContent.toLowerCase().includes(filterValue)) {
+                    matchFound = true;
+                }
+            });
+
+            if (matchFound) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    searchInput.addEventListener('keyup', filterTable);
+    document.getElementById('filterButton').addEventListener('click', filterTable);
+});

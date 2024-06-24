@@ -6,6 +6,29 @@
 
 {% block extra_styles %}
 <link rel="stylesheet" href="{% static 'index_app/loginpage.css' %}">
+<style>
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        display: none;
+    }
+    .alert-success {
+        color: #3c763d;
+        background-color: #dff0d8;
+        border-color: #d6e9c6;
+    }
+    .alert-error {
+        color: #a94442;
+        background-color: #f2dede;
+        border-color: #ebccd1;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -13,7 +36,7 @@
         <div class="info-section"></div>
         <div class="login-section">
             <h1>Verify Email</h1>
-            <form action="{% url 'auth:verify_email' %}" method="post">
+            <form id="verify-email-form" method="post">
                 {% csrf_token %}
                 <div class="error-message">
                     {% if messages %}
@@ -33,4 +56,48 @@
             </form>
         </div>
     </div>
+
+    <div class="alert alert-success" id="success-alert">Submitted successfully!</div>
+    <div class="alert alert-error" id="error-alert">An error occurred while submitting.</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('verify-email-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const formData = new FormData(this);
+                fetch("{% url 'auth:verify_email' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('success-alert').style.display = 'block';
+                        setTimeout(function() {
+                            document.getElementById('success-alert').style.display = 'none';
+                            document.getElementById('verify-email-form').reset();
+                            window.location.href = "{% url 'login' %}";
+                        }, 3000); // 3 seconds delay before redirect
+                    } else {
+                        document.getElementById('error-alert').textContent = data.error;
+                        document.getElementById('error-alert').style.display = 'block';
+                        setTimeout(function() {
+                            document.getElementById('error-alert').style.display = 'none';
+                        }, 3000); // Hide the error message after 3 seconds
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('error-alert').textContent = 'An unexpected error occurred.';
+                    document.getElementById('error-alert').style.display = 'block';
+                    setTimeout(function() {
+                        document.getElementById('error-alert').style.display = 'none';
+                    }, 3000); // Hide the error message after 3 seconds
+                });
+            });
+        });
+    </script>
 {% endblock %}
