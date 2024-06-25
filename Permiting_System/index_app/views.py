@@ -113,6 +113,7 @@ class UpdateApplicantDetails(View):
 
 
 class DisplayPermit(GenerateQRCodeMixin, View):
+    model = apps.get_model('dvo_app', 'Permit')
     template_name = 'index_app/permit.html'
 
     def get(self, request, permitId):
@@ -145,4 +146,4 @@ class DisplayPermit(GenerateQRCodeMixin, View):
             'permit_base64_image_data': permit_base64_image_data,
             'total_animals': total_animals
         }
-        return render(request, self.template, context)
+        return render(request, self.template_name, context)
