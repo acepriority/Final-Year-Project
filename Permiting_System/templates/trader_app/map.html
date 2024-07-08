@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quarantine Areas Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Map</h1>
+    <div id="map"></div>
+
+    <script>
+        const map = L.map('map').setView([0.3476, 32.5825], 7);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        if(!navigator.geolocation) {
+            console.log("Your browser doesn't support geolocation feature!")
+        } else {
+            setInterval(() => {
+                navigator.geolocation.getCurrentPosition(getPosition);
+            }, 5000);
+        }
+
+        function getPosition(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+
+            L.circle([lat, lon], {
+                color: 'blue',
+                fillColor: '#30f',
+                fillOpacity: 0.5,
+                radius: 500
+            }).addTo(map).bindPopup("You are here!");
+        }
+
+        const quarantineData = {{ quarantine_districts|safe }};
+
+        quarantineData.forEach(function(data) {
+            L.circle([data.latitude, data.longitude], {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                radius: 10000
+            }).addTo(map).bindPopup(
+                `Quarantine in ${data.name}<br>For: ${data.animal}`
+            );
+        });
+    </script>
+</body>
+</html>

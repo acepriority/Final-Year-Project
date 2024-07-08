@@ -4,8 +4,17 @@ import enum
 from django.apps import apps
 
 
+class District(models.Model):
+    name = models.CharField(max_length=30)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+
+    def __str__(self):
+        return self.name
+
+
 class Quarantine(models.Model):
-    district = models.CharField(max_length=30)
+    district = models.ForeignKey(District, on_delete=models.CASCADE)
     animal = models.CharField(max_length=30)
 
     def __str__(self):
@@ -43,6 +52,8 @@ class Trader(models.Model):
     date_submitted = models.DateField(auto_now_add=True)
     date_approved = models.DateField(null=True)
     date_rejected = models.DateField(null=True)
+    current_latitude = models.FloatField(null=True, blank=True)
+    current_longitude = models.FloatField(null=True, blank=True)
     status = models.CharField(
         max_length=1,
         choices=ApplicantChoices.choices()

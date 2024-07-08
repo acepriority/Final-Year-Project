@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Permits Table</title>
-    <link rel="stylesheet" href="{% static 'staff_app/table.css' %}">
+    <link rel="stylesheet" href="{% static 'staff_app/usertable.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -17,6 +18,7 @@
         </ul>
     </nav>
     <div class="container">
+        
         <div class="header">
             <h2>Permits</h2>
             <div class="search-filter">
@@ -24,21 +26,47 @@
                 <button id="filterButton">Filter</button>
             </div>
         </div>
+
+        <div class="board">
+            <div class="chart_types">
+                <button onclick="setChartType('bar')">Bars</button>
+                <button onclick="setChartType('line')">Line</button>
+                <button onclick="setChartType('doughnut')">Pie-Chart</button>
+            </div>
+
+            <div class="chart">
+                <canvas id="chart"></canvas>
+            </div>
+            
+            <div class="board-info">
+                <p>Total Number of Permits: {{ total_permits }}</p>
+                <p>Most Common Source: {{ most_common_source }}</p>
+                <p>Most Common Distination: {{ most_common_destination }}</p>
+            </div>
+        </div>
+
         <table>
+            <div class="search-filter">
+                <label for="num-permits">Display:</label>
+                <input type="number" id="num-permits" min="1" value="1">
+                <button id="set-display" class="set-display">Set</button>
+            </div>
             <thead>
                 <tr>
                     <th>Permit No.</th>
+                    <th>Trader</th>
                     <th>Source</th>
                     <th>Destination</th>
-                    <th>Animals</th>
+                    <th>Purpose</th>
                     <th>Quantity</th>
                     <th>DVO</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
+            <tbody id="history-tbody">
                 {% for permit in permit %}
                 <tr>
                     <td>{{ permit.id }}</td>
+                    <td>{{ permit.trader.first_name }} {{ permit.trader.last_name }}</td>
                     <td>{{ permit.source }}</td>
                     <td>{{ permit.destination }}</td>
                     <td>{{ permit.purpose }}</td>
@@ -49,6 +77,59 @@
             </tbody>
         </table>
     </div>
-    <script src="{% static 'staff_app/table.js' %}"></script>
+
+    <script>
+        const ctx = document.getElementById('chart').getContext('2d');
+
+        let chart;
+
+        function setChartType(chartType) {
+            if (chart) {
+                chart.destroy();
+            }
+            createChart(labels, data, chartType);
+        }
+
+        function createChart(labels, data, type) {
+            chart = new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'permits per trader',
+                        data: data,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                }
+            });
+        }
+
+        const labels = {{ labels|safe }};
+        const data = {{ data|safe }};
+        
+        createChart(labels, data, 'doughnut');
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const setDisplayButton = document.getElementById("set-display");
+            const numPermitsInput = document.getElementById("num-permits");
+            const historyTbody = document.getElementById("history-tbody");
+
+            setDisplayButton.addEventListener("click", function() {
+                const numPermits = parseInt(numPermitsInput.value, 10);
+                const allRows = Array.from(historyTbody.querySelectorAll("tr"));
+                
+                allRows.forEach(row => row.style.display = "none");
+
+                for (let i = 0; i < numPermits && i < allRows.length; i++) {
+                    allRows[i].style.display = "";
+                }
+            });
+
+            setDisplayButton.click();
+        });
+    </script>
 </body>
 </html>

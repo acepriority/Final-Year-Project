@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from .models import UserProfile
-from staff_app.models import Trader, TraderLicense
+from staff_app.models import Trader, TraderLicense, District, Quarantine
 from dvo_app.models import Animal, Permit, AnimalInfo
 from trader_app.models import PermitRequest
 
@@ -41,3 +41,5 @@ admin.site.register(Permit)
 admin.site.register(AnimalInfo)
 admin.site.register(PermitRequest)
 admin.site.register(TraderLicense)
+admin.site.register(District)
+admin.site.register(Quarantine)

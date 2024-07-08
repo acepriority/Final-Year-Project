@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from staff_app.models import Trader
+from staff_app.models import District
 from datetime import datetime, timedelta
 import enum
 
@@ -17,8 +18,9 @@ class Animal(models.Model):
 
 
 class DocumentChoices(str, enum.Enum):
-    a = "Valid"
-    b = "Expired"
+    VALID = "Valid"
+    EXPIRED = "Expired"
+    IN_TRANSIT = "In Transit"
 
     @classmethod
     def choices(cls):
@@ -28,16 +30,19 @@ class DocumentChoices(str, enum.Enum):
 class Permit(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     trader = models.ForeignKey(Trader, on_delete=models.CASCADE)
-    source = models.CharField(max_length=30)
-    destination = models.CharField(max_length=30)
+    source = models.ForeignKey(District, related_name='permits_as_source', on_delete=models.CASCADE)
+    destination = models.ForeignKey(District, related_name='permits_as_destination', on_delete=models.CASCADE)
     purpose = models.CharField(max_length=30)
     status = models.CharField(
-        max_length=1,
-        choices=DocumentChoices.choices()
-        )
+        max_length=15,
+        choices=DocumentChoices.choices(),
+        default=DocumentChoices.VALID.value
+    )
     date_of_expiry = models.DateField(
         default=datetime.now() + timedelta(days=1)
         )
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:

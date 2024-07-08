@@ -47,6 +47,38 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Automatically get user's location and fill the district field
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    // Send the location to the server
+                    fetch("{% url 'trader:get_district' %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify({
+                            latitude: latitude,
+                            longitude: longitude
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('district').value = data.district_name;
+                        } else {
+                            alert('Could not find your district');
+                        }
+                    });
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+
+            // Form submission handling
             document.getElementById('permit-request-form').addEventListener('submit', function(event) {
                 event.preventDefault();
         
@@ -84,6 +116,22 @@
                 });
             });
         });
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
     </script>
 </body>
 </html>

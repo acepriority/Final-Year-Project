@@ -30,6 +30,16 @@ class ViewTablesMixin:
         self.model = model
         self.template_name = template
 
+    def get_context_data(self) -> dict:
+        """
+        Retrieve all objects of the specified model and prepare the context data.
+
+        Returns:
+            dict: The context data containing the queryset.
+        """
+        queryset = self.model.objects.all()
+        return {self.model.__name__.lower(): queryset}
+
     def get(self, request):
         """
         Retrieve all objects of the specified model and render a template with the queryset.
@@ -37,5 +47,5 @@ class ViewTablesMixin:
         Returns:
             HttpResponse: The response containing the rendered template with the queryset as context.
         """
-        queryset = self.model.objects.all()
-        return render(request, self.template_name, context={self.model.__name__.lower(): queryset})
+        context = self.get_context_data()
+        return render(request, self.template_name, context=context)

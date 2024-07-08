@@ -33,10 +33,6 @@ nav ul {
     display: flex;
 }
 
-/* nav ul li {
-    margin-left: 20px;
-} */
-
 nav ul li a {
     color: #000;
     text-decoration: none;
@@ -104,6 +100,27 @@ nav ul li a {
     margin-top: 20px;
 }
 
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.display-settings {
+    display: flex;
+    align-items: center;
+}
+
+.display-settings label {
+    margin-right: 10px;
+}
+
+.display-settings input {
+    width: 60px;
+    margin-right: 10px;
+    padding: 5px;
+}
+
 .history h2 {
     margin-bottom: 10px;
 }
@@ -122,6 +139,38 @@ nav ul li a {
 .history table th {
     background-color: #169EE7;
     color: #fff;
+}
+
+button {
+    background-color: #007BFF;
+    color: white; 
+    padding: 12px 24px; 
+    border: none; 
+    border-radius: 4px; 
+    font-size: 16px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 30px;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05); 
+}
+
+button:active {
+    background-color: #003d80;
+    transform: scale(1); 
+}
+
+button:focus {
+    outline: none; 
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5); 
+}
+
+.set-display {
+    margin-bottom: 30px;
 }
 
 /* Responsive Design */
@@ -153,5 +202,10 @@ nav ul li a {
     .profile-column {
         width: 100%;
         text-align: center;
+    }
+
+    button {
+        width: 100%;
+        padding: 16px; 
     }
 }

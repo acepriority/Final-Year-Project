@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseForbidden, JsonResponse
+from django.http import HttpResponseForbidden, JsonResponse, HttpResponseRedirect
+from django.urls import reverse
 from django.contrib import messages
 from django.views.generic import View
 from django.apps import apps
@@ -9,6 +10,8 @@ import base64
 from django.core.serializers import serialize
 import json
 from components.email import SendEmailMixin
+from django.utils import timezone
+from .models import DocumentChoices, Permit
 
 
 class DVO(LoginRequiredMixin, View):
@@ -17,14 +20,23 @@ class DVO(LoginRequiredMixin, View):
 
     def get(self, request):
         user = request.user
-        district = user.userprofile.district
+        user_profile = user.userprofile
+        district_name = user_profile.district
 
-        if not user.userprofile.is_dvo:
+        if not user_profile.is_dvo:
             return HttpResponseForbidden(f"You are authenticated as {request.user}, but are not authorized to access this page.")
+
+        try:
+            # Ensure the district variable is a District instance
+            district_model = apps.get_model('staff_app', 'District')
+            district = district_model.objects.get(name=district_name)
+        except district_model.DoesNotExist:
+            messages.error(request, f'District {district_name} not found')
+            return render(request, self.template_name, {})
 
         quarantine_exists = self.model.objects.filter(district=district).exists()
         if quarantine_exists:
-            messages.error(request, f'Quarantine is imposed in {district}')
+            messages.error(request, f'Quarantine is imposed in {district.name}')
 
         try:
             permit_requests_model = apps.get_model('trader_app', 'PermitRequest')
@@ -64,13 +76,12 @@ class GeneratePermit(LoginRequiredMixin, SendEmailMixin, View):
 
     def post(self, request):
         user = request.user
-        district = user.userprofile.district
+        district_name = user.userprofile.district
         license_id = request.POST.get('license_id')
         request_id = request.POST.get('request_id')
-        source = request.POST.get('source')
-        destination = request.POST.get('destination')
+        source_name = request.POST.get('source')
+        destination_name = request.POST.get('destination')
         purpose = request.POST.get('purpose')
-        status = 'a'
 
         animal_types = request.POST.getlist('animal_type')
         sexes = request.POST.getlist('sex')
@@ -83,16 +94,24 @@ class GeneratePermit(LoginRequiredMixin, SendEmailMixin, View):
         except trader_model.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'License does not exist'}, status=400)
 
+        district_model = apps.get_model('staff_app', 'District')
+        district = district_model.objects.get(name=district_name)
+
         animal_model = apps.get_model('dvo_app', 'Animal')
         animal_info_model = apps.get_model('dvo_app', 'AnimalInfo')
         quarantine_model = apps.get_model('staff_app', 'Quarantine')
 
         try:
+            district_model = apps.get_model('staff_app', 'District')
+            source = district_model.objects.get(name=source_name)
+            destination = district_model.objects.get(name=destination_name)
+
             for animal_type, sex, color, quantity in zip(animal_types, sexes, colors, quantities):
                 animal, created = animal_model.objects.get_or_create(type=animal_type)
 
                 if quarantine_model.objects.filter(district=district, animal=animal).exists():
-                    return JsonResponse({'success': False, 'error': f'Cannot generate Permit because a Quarantine for {animal.type} is imposed in {district}'}, status=400)
+                    error_msg = f"Cannot generate Permit because a Quarantine for {animal.type} is imposed in {district}"
+                    return JsonResponse({'success': False, 'error': error_msg}, status=400)
 
             permit_request_model = apps.get_model('trader_app', 'PermitRequest')
             permit_request = permit_request_model.objects.get(id=request_id)
@@ -106,7 +125,6 @@ class GeneratePermit(LoginRequiredMixin, SendEmailMixin, View):
                 source=source,
                 destination=destination,
                 purpose=purpose,
-                status=status
             )
 
             self.send_permit_email(request, trader.email, permit.id)
@@ -127,7 +145,7 @@ class GeneratePermit(LoginRequiredMixin, SendEmailMixin, View):
 
             return JsonResponse({'success': True, 'permit': permit_data})
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
 class ViewPermit(LoginRequiredMixin, GenerateQRCodeMixin, View):
@@ -158,10 +176,42 @@ class ViewPermit(LoginRequiredMixin, GenerateQRCodeMixin, View):
 
         total_animals = sum(animal_info.quantity for animal_info in animal_info_list)
 
+        quarantine_model = apps.get_model('staff_app', 'Quarantine')
+        quarantines = quarantine_model.objects.select_related('district').all()
+
+        quarantine_districts = [
+            {
+                'name': quarantine.district.name,
+                'latitude': quarantine.district.latitude,
+                'longitude': quarantine.district.longitude,
+                'animal': quarantine.animal
+            }
+            for quarantine in quarantines
+        ]
+
         context = {
             'permit': permit,
             'zipped_animal_info': zipped_animal_info,
             'permit_base64_image_data': permit_base64_image_data,
-            'total_animals': total_animals
+            'total_animals': total_animals,
+            'permit_status': permit.status,
+            'quarantine_districts': quarantine_districts,
+            'source_coordinates': {
+                'latitude': permit.source.latitude,
+                'longitude': permit.source.longitude
+            },
+            'destination_coordinates': {
+                'latitude': permit.destination.latitude,
+                'longitude': permit.destination.longitude
+            }
         }
         return render(request, self.template, context)
+
+
+class StartTrip(LoginRequiredMixin, View):
+    def get(self, request, permitId):
+        permit = get_object_or_404(Permit, id=permitId)
+        permit.start_time = timezone.now()
+        permit.status = DocumentChoices.IN_TRANSIT.value
+        permit.save()
+        return HttpResponseRedirect(reverse('dvo:permit', args=[permitId]))

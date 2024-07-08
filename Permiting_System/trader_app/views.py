@@ -8,7 +8,13 @@ from components.generate_qr_code import GenerateQRCodeMixin
 from django.contrib import messages
 import base64
 from .models import PermitRequest
-from auth_app.utils import URLBuilder
+import json
+from django.db.models import F, Func, FloatField, ExpressionWrapper
+from django.db.models.functions import Sqrt, Power, Sin, Cos, Radians, ATan2
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from dvo_app.models import DocumentChoices
+from django.utils import timezone
 import logging
 
 logger = logging.getLogger(__name__)
@@ -79,9 +85,70 @@ class ViewPermit(LoginRequiredMixin, GenerateQRCodeMixin, View):
             'permit': permit,
             'zipped_animal_info': zipped_animal_info,
             'permit_base64_image_data': permit_base64_image_data,
-            'total_animals': total_animals
+            'total_animals': total_animals,
+            'permit_status': permit.status,
+            'source_coordinates': {
+                'latitude': permit.source.latitude,
+                'longitude': permit.source.longitude
+            },
+            'destination_coordinates': {
+                'latitude': permit.destination.latitude,
+                'longitude': permit.destination.longitude
+            }
         }
         return render(request, self.template, context)
+
+
+class HaversineDistance(Func):
+    function = 'HaversineDistance'
+    output_field = FloatField()
+
+    def __init__(self, lat1, lon1, lat2, lon2, **extra):
+        super().__init__(lat1, lon1, lat2, lon2, **extra)
+        self.template = """
+        6371 * 2 * ASIN(SQRT(
+            POWER(SIN(RADIANS(%(lat1)s - %(lat2)s) / 2), 2) +
+            COS(RADIANS(%(lat1)s)) * COS(RADIANS(%(lat2)s)) *
+            POWER(SIN(RADIANS(%(lon1)s - %(lon2)s) / 2), 2)
+        ))
+        """
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class GetDistrict(LoginRequiredMixin, View):
+    def post(self, request):
+        data = json.loads(request.body)
+        latitude = data.get('latitude')
+        longitude = data.get('longitude')
+
+        if latitude is not None and longitude is not None:
+            model = apps.get_model('staff_app', 'District')
+            nearest_district = model.objects.annotate(
+                distance=ExpressionWrapper(
+                    6371 * 2 * ATan2(
+                        Sqrt(
+                            Power(Sin(Radians(F('latitude') - latitude) / 2), 2) +
+                            Cos(Radians(F('latitude'))) * Cos(Radians(latitude)) *
+                            Power(Sin(Radians(F('longitude') - longitude) / 2), 2)
+                        ),
+                        Sqrt(
+                            1 - (
+                                Power(Sin(Radians(F('latitude') - latitude) / 2), 2) +
+                                Cos(Radians(F('latitude'))) * Cos(Radians(latitude)) *
+                                Power(Sin(Radians(F('longitude') - longitude) / 2), 2)
+                            )
+                        )
+                    ),
+                    output_field=FloatField()
+                )
+            ).order_by('distance').first()
+
+            if nearest_district:
+                return JsonResponse({'success': True, 'district_name': nearest_district.name})
+            else:
+                return JsonResponse({'success': False, 'message': 'District not found'})
+
+        return JsonResponse({'success': False, 'message': 'Invalid request'})
 
 
 class MakePermitRequest(LoginRequiredMixin, View):
@@ -119,3 +186,30 @@ class MakePermitRequest(LoginRequiredMixin, View):
             return JsonResponse({'success': True})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class UpdatePositionView(View, LoginRequiredMixin):
+    model = apps.get_model('dvo_app', 'Permit')
+
+    def post(self, request, permit_id):
+        permit = self.model.objects.get(id=permit_id)
+        trader = permit.trader
+
+        if permit.status != DocumentChoices.IN_TRANSIT.value:
+            return JsonResponse({'status': 'error', 'message': 'Permit is not in transit'}, status=400)
+
+        data = json.loads(request.body)
+        latitude = data.get('latitude')
+        longitude = data.get('longitude')
+
+        trader.current_latitude = latitude
+        trader.current_longitude = longitude
+        trader.save()
+
+        if (latitude == permit.destination.latitude and longitude == permit.destination.longitude):
+            permit.status = DocumentChoices.EXPIRED.value
+            permit.end_time = timezone.now()
+            permit.save()
+
+        return JsonResponse({'status': 'success', 'latitude': latitude, 'longitude': longitude})

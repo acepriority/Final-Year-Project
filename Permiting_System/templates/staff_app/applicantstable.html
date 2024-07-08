@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Applicants Table</title>
     <link rel="stylesheet" href="{% static 'staff_app/table.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -24,6 +25,24 @@
                 <button id="filterButton">Filter</button>
             </div>
         </div>
+
+        <div class="board">
+            <div class="chart_types">
+                <button onclick="setChartType('bar')">Bars</button>
+                <button onclick="setChartType('line')">Line</button>
+                <button onclick="setChartType('doughnut')">Pie-Chart</button>
+            </div>
+
+            <div class="chart">
+                <canvas id="chart"></canvas>
+            </div>
+
+            <div class="board-info">
+                <p>Total Applicants: {{ total_applicants }}</p>
+                <p>Most Common District: {{ common_district }}</p>
+            </div>
+        </div>
+
         <table>
             <thead>
                 <tr>
@@ -51,6 +70,39 @@
             var url = "{% url 'staff:applicant_details' 0 %}".replace('0', applicantId);
             window.location.href = url;
         }
+
+        const ctx = document.getElementById('chart').getContext('2d');
+
+        let chart;
+
+        function setChartType(chartType) {
+            if (chart) {
+                chart.destroy();
+            }
+            createChart(labels, data, chartType);
+        }
+
+        function createChart(labels, data, type) {
+            chart = new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'traders per month',
+                        data: data,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                }
+            });
+        }
+
+        const labels = {{ labels|safe }};
+        const data = {{ data|safe }};
+        
+        createChart(labels, data, 'doughnut');
     </script>
 </body>
 </html>

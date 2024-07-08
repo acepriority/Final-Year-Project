@@ -27,25 +27,19 @@
         <table>
             <thead>
                 <tr>
-                    <th>LicenseID</th>
                     <th>UserID</th>
-                    <th>Username</th>
-                    <th>Email</th>
+                    <th>LicenseID</th>
                     <th>First Name</th>
                     <th>Last Name</th>
-                    <th>Status</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
-                {% for license in license %}
+                {% for traderlicense in traderlicense %}
                 <tr>
-                    <td>{{license.id}}</td>
-                    <td>{{license.user.id}}</td>
-                    <td>{{license.user.username}}</td>
-                    <td>{{license.user.email}}</td>
-                    <td>{{license.user.first_name}}</td>
-                    <td>{{license.user.last_name}}</td>
-                    <td>{{license.status}}</td>
+                    <td>{{traderlicense.user.id}}</td>
+                    <td>{{traderlicense.trader.license_id}}</td>
+                    <td>{{traderlicense.trader.first_name}}</td>
+                    <td>{{traderlicense.trader.last_name}}</td>
                 </tr>
                 {% endfor %}
             </tbody>

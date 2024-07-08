@@ -4,7 +4,8 @@ from .views import (
     ViewPermitRequestDetails,
     GeneratePermit,
     DVOProfile,
-    ViewPermit)
+    ViewPermit,
+    StartTrip)
 
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path('permit_request_details/<int:request_id>/', ViewPermitRequestDetails.as_view(), name='permit_request_details'),
     path('generate_permit/', GeneratePermit.as_view(), name='generate_permit'),
     path('permit/<int:permitId>/', ViewPermit.as_view(), name='permit'),
+    path('start_trip/<int:permitId>', StartTrip.as_view(), name='start_trip')
 ]

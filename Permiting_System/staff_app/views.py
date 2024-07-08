@@ -10,6 +10,9 @@ from components.email import SendEmailMixin
 import random
 import string
 from .models import Quarantine
+from collections import Counter
+from collections import defaultdict
+import calendar
 
 
 class Staff(StaffRequiredMixin, View):
@@ -23,7 +26,8 @@ class StaffProfile(StaffRequiredMixin, View):
 class ViewUsersTable(LoginRequiredMixin, ViewTablesMixin, View):
     def __init__(self):
         model = apps.get_model('auth_app', 'UserProfile')
-        super().__init__(model=model, template='staff_app/userstable.html')
+        template = 'staff_app/userstable.html'
+        super().__init__(model=model, template=template)
 
 
 class ViewQuarantineTable(LoginRequiredMixin, ViewTablesMixin, View):
@@ -36,6 +40,41 @@ class ViewPermitstable(LoginRequiredMixin, ViewTablesMixin, View):
         model = apps.get_model('dvo_app', 'Permit')
         super().__init__(model=model, template='staff_app/permitstable.html')
 
+    def get_context_data(self) -> dict:
+        queryset = self.model.objects.order_by('-id')
+
+        permits_per_user = {}
+        sources = []
+        destinations = []
+        for permit in queryset:
+            name = f'{permit.trader.first_name}'
+            if name not in permits_per_user:
+                permits_per_user[name] = 0
+            permits_per_user[name] += 1
+            sources.append(permit.source)
+            destinations.append(permit.destination)
+
+        labels = list(permits_per_user.keys())
+        data = list(permits_per_user.values())
+
+        total_permits = sum(data)
+        most_common_source = Counter(sources).most_common(1)[0][0]
+        most_common_destination = Counter(destinations).most_common(1)[0][0]
+
+        context = super().get_context_data()
+        context.update({
+            'labels': labels,
+            'data': data,
+            'total_permits': total_permits,
+            'most_common_source': most_common_source,
+            'most_common_destination': most_common_destination,
+        })
+        return context
+
+    def get(self, request):
+        context = self.get_context_data()
+        return render(request, self.template_name, context=context)
+
 
 class ViewLicensesTable(ViewTablesMixin, View):
     def __init__(self):
@@ -45,7 +84,7 @@ class ViewLicensesTable(ViewTablesMixin, View):
 
 class ViewPermitRequeststable(LoginRequiredMixin, ViewTablesMixin, View):
     def __init__(self):
-        model = apps.get_model('lc5_app', 'PermitRequest')
+        model = apps.get_model('trader_app', 'PermitRequest')
         super().__init__(model=model, template='staff_app/permitrequeststable.html')
 
 
@@ -53,6 +92,35 @@ class ViewApplicantsTable(LoginRequiredMixin, ViewTablesMixin, View):
     def __init__(self):
         model = apps.get_model('staff_app', 'Trader')
         super().__init__(model=model, template='staff_app/applicantstable.html')
+
+    def get_context_data(self) -> dict:
+        queryset = self.model.objects.order_by('-id')
+
+        traders_per_month = defaultdict(int)
+        districts = Counter()
+
+        for trader in queryset:
+            month = calendar.month_name[trader.date_submitted.month]
+            traders_per_month[month] += 1
+            districts[trader.district] += 1
+
+        labels = list(traders_per_month.keys())
+        data = list(traders_per_month.values())
+        total_applicants = len(queryset)
+        common_district = districts.most_common(1)[0][0] if districts else None
+
+        context = super().get_context_data()
+        context.update({
+            'labels': labels,
+            'data': data,
+            'total_applicants': total_applicants,
+            'common_district': common_district,
+        })
+        return context
+
+    def get(self, request):
+        context = self.get_context_data()
+        return render(request, self.template_name, context=context)
 
 
 class ApplicantDetails(LoginRequiredMixin, View):

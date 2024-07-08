@@ -5,10 +5,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="{% static 'trader_app/permit.css' %}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 <title>Permit</title>
     <style>
         .page-break {
             page-break-before: always;
+        }
+        #map {
+            height: 300px;
+            width: 100%;
         }
     </style>
 </head>
@@ -124,10 +132,21 @@
                 </div>
             {% endfor %}
         </div>
+
+        <div class="start-trip-btn">
+            <button onclick="startTrip({{ permit.id }})">Start Trip</button>
+        </div>
+
+        <div id="map"></div>
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
     <script>
+        function startTrip(permitId) {
+            var url = "{% url 'dvo:start_trip' 0 %}".replace('0', permitId);
+            window.location.href = url;
+        }
+
         window.onload = function () {
             document.getElementById("download-btn")
                 .addEventListener("click", () => {
@@ -144,6 +163,48 @@
                     html2pdf().from(permit).set(opt).save();
                 })
         }
+
+        const sourceCoordinates = {{ source_coordinates|safe }};
+        const destinationCoordinates = {{ destination_coordinates|safe }};
+        const quarantineData = {{ quarantine_districts|safe }};
+        const permitStatus = "{{ permit_status }}";
+
+        console.log("Permit status:", "{{ permit_status }}");
+    
+        const map = L.map('map').setView([sourceCoordinates.latitude, sourceCoordinates.longitude], 7);
+    
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        let initialRouteColor = 'blue';
+
+        if (permitStatus === "In Transit") {
+            initialRouteColor = 'yellow';
+        }
+        else if (permitStatus === "Expired") {
+            initialRouteColor = 'red';
+        }
+    
+        L.Routing.control({
+            waypoints: [
+                L.latLng(sourceCoordinates.latitude, sourceCoordinates.longitude),
+                L.latLng(destinationCoordinates.latitude, destinationCoordinates.longitude)
+            ],
+            routeWhileDragging: true,
+            lineOptions: {
+                styles: [{color: initialRouteColor, opacity: 0.7, weight: 4}]
+            }
+        }).addTo(map);
+
+        quarantineData.forEach(function(data) {
+            L.circle([data.latitude, data.longitude], {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                radius: 10000
+            }).addTo(map).bindPopup(
+                `Quarantine in ${data.name}<br>For: ${data.animal}`
+            );
+        });
     </script>
 </body>
 </html>
