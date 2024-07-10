@@ -13,7 +13,7 @@ from django.db.models import F, Func, FloatField, ExpressionWrapper
 from django.db.models.functions import Sqrt, Power, Sin, Cos, Radians, ATan2
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from dvo_app.models import DocumentChoices
+from dvo_app.models import Permit, DocumentChoices
 from django.utils import timezone
 import logging
 
@@ -213,3 +213,16 @@ class UpdatePositionView(View, LoginRequiredMixin):
             permit.save()
 
         return JsonResponse({'status': 'success', 'latitude': latitude, 'longitude': longitude})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class UpdatePermitStatus(View):
+    def post(self, request, permit_id):
+        try:
+            permit = Permit.objects.get(id=permit_id)
+            permit.status = DocumentChoices.EXPIRED.value
+            permit.end_time = timezone.now()
+            permit.save()
+            return JsonResponse({'success': True})
+        except Permit.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Permit does not exist'})

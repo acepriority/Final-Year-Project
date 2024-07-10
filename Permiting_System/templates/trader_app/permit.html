@@ -152,9 +152,9 @@
         
         const sourceCoordinates = {{ source_coordinates|safe }};
         const destinationCoordinates = {{ destination_coordinates|safe }};
-        const permitStatus = "{{ permit_status }}";
-
-        console.log("Permit status:", "{{ permit_status }}");
+        let permitStatus = "{{ permit_status }}";
+    
+        console.log("Permit status:", permitStatus);
     
         const map = L.map('map').setView([sourceCoordinates.latitude, sourceCoordinates.longitude], 7);
     
@@ -164,27 +164,26 @@
     
         if (permitStatus === "In Transit") {
             initialRouteColor = 'yellow';
-        }
-        else if (permitStatus === "Expired") {
+        } else if (permitStatus === "Expired") {
             initialRouteColor = 'red';
         }
-
+    
         if (!navigator.geolocation) {
             console.log("Your browser doesn't support geolocation feature!");
         } else {
             setInterval(() => {
-                navigator.geolocation.getCurrentPosition(getPosition);
+                if (permitStatus === "In Transit") {
+                    navigator.geolocation.getCurrentPosition(getPosition);
+                }
             }, 5000);
         }
-        
+    
         function getPosition(position) {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
-        
-            if (permitStatus === "In Transit") {
-                updateTraderPosition(lat, lon);
-            }
-        
+    
+            updateTraderPosition(lat, lon);
+    
             L.circle([lat, lon], {
                 color: 'blue',
                 fillColor: '#30f',
@@ -192,7 +191,7 @@
                 radius: 500
             }).addTo(map);
         }
-        
+    
         function updateTraderPosition(latitude, longitude) {
             fetch("{% url 'trader:update_position' permit.id %}", {
                 method: "POST",
@@ -214,7 +213,7 @@
             });
         }
     
-        L.Routing.control({
+        const control = L.Routing.control({
             waypoints: [
                 L.latLng(sourceCoordinates.latitude, sourceCoordinates.longitude),
                 L.latLng(destinationCoordinates.latitude, destinationCoordinates.longitude)
@@ -224,6 +223,41 @@
                 styles: [{color: initialRouteColor, opacity: 0.7, weight: 4}]
             }
         }).addTo(map);
+
+        var truckIcon = L.icon({
+			iconUrl: "{% static 'trader_app/truck.jpeg' %}",
+			iconSize: [40, 40]
+		})
+    
+        let marker = L.marker([sourceCoordinates.latitude, sourceCoordinates.longitude], { icon: truckIcon }).addTo(map);
+    
+        if (permitStatus === "In Transit") {
+            control.on('routesfound', function (e) {
+                const route = e.routes[0].coordinates;
+                let index = 0;
+    
+                function moveMarker() {
+                    if (index < route.length) {
+                        marker.setLatLng([route[index].lat, route[index].lng]);
+                        index++;
+                        setTimeout(moveMarker, 10);
+                    } else {
+                        fetch("{% url 'trader:update_permit_status' permit.id %}", { method: 'POST' })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    marker.setLatLng([destinationCoordinates.latitude, destinationCoordinates.longitude]);
+                                    alert('Permit status updated to Expired');
+                                    permitStatus = "Expired";
+                                } else {
+                                    alert('Failed to update permit status');
+                                }
+                            });
+                    }
+                }
+                moveMarker();
+            });
+        }
     </script>
 </body>
 </html>
