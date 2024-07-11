@@ -7,15 +7,106 @@
 <link rel="stylesheet" href="{% static 'trader_app/permit.css' %}">
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 <title>Permit</title>
 </head>
 <body>
     <style>
-        #map {
-            height: 300px;
+        #map-container {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            height: 100vh;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        .map-wrapper {
             width: 100%;
+            max-width: 1200px;
+            height: 100%;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        .search-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .search-bar {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem;
+        }
+        .search-bar input {
+            width: 100%;
+            border: none;
+            outline: none;
+            padding: 0.5rem;
+            font-size: 1rem;
+        }
+        .search-bar button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #1e90ff;
+        }
+        .awesomplete {
+            width: 100%;
+        }
+        .awesomplete ul {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 0.5rem;
+            padding: 0.5rem 0;
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .awesomplete li {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+        }
+        .awesomplete li:hover, .awesomplete li[aria-selected="true"] {
+            background-color: #1e90ff;
+            color: white;
+        }
+        @media (max-width: 768px) {
+            #map-container {
+                padding: 0.5rem;
+            }
+            .map-wrapper {
+                height: 80vh;
+            }
+            .search-bar {
+                max-width: 300px;
+            }
         }
     </style>
     <header>
@@ -128,7 +219,17 @@
             </div>
         {% endfor %}
 
-        <div id="map"></div>
+        <div id="map-container">
+            <div class="map-wrapper">
+                <div class="search-container">
+                    <div class="search-bar">
+                        <input type="text" id="search-input" class="awesomplete" placeholder="Search for places..." />
+                        <button id="search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                <div id="map"></div>
+            </div>
+        </div>
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
@@ -258,6 +359,86 @@
                 moveMarker();
             });
         }
+
+        
+        // Geocoding function to search for places
+        function searchPlace(query) {
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        const place = data[0];
+                        const lat = place.lat;
+                        const lon = place.lon;
+
+                        // Set the map view to the searched place
+                        map.setView(new L.LatLng(lat, lon), 13);
+
+                        // Add a marker for the searched place
+                        L.marker([lat, lon]).addTo(map)
+                            .bindPopup(place.display_name)
+                            .openPopup();
+                    } else {
+                        alert('Place not found.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error searching for place.');
+                });
+        }
+
+        // Autocomplete function to fetch suggestions
+        function fetchSuggestions(query, callback) {
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    const suggestions = data.map(place => place.display_name);
+                    callback(suggestions);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    callback([]);
+                });
+        }
+
+        const awesomplete = new Awesomplete(document.getElementById("search-input"), {
+            minChars: 3,
+            maxItems: 10
+        });
+
+        document.getElementById("search-input").addEventListener("input", function() {
+            const query = this.value;
+            if (query.length >= 3) {
+                fetchSuggestions(query, function(suggestions) {
+                    awesomplete.list = suggestions;
+                });
+            }
+        });
+
+        // Event listener for search button
+        document.getElementById('search-btn').addEventListener('click', () => {
+            const query = document.getElementById('search-input').value;
+            if (query) {
+                searchPlace(query);
+            }
+        });
+
+        // Event listener for enter key in search input
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = e.target.value;
+                if (query) {
+                    searchPlace(query);
+                }
+            }
+        });
+
+        // Event listener for selecting an autocomplete suggestion
+        document.getElementById('search-input').addEventListener('awesomplete-selectcomplete', function() {
+            const query = this.value;
+            searchPlace(query);
+        });
     </script>
 </body>
 </html>
